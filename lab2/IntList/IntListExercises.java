@@ -13,7 +13,7 @@ public class IntListExercises {
         while (head != null) {
             head.first += c;
             head = head.rest;
-        }git
+        }
     }
 
     /**
