@@ -23,24 +23,27 @@ public class TimeAList {
 
     public static void timeAListConstruction() {
         // TODO: YOUR CODE HERE
-        AList<Integer> test=new AList<Integer>();
-        AList<Integer> Ns=new AList<Integer>();
-        AList<Double> times=new AList<Double>();
-        AList<Integer> opCounts=new AList<Integer>();
-        for(int i=1000;i<=128000;i=i*2){
+        AList<Integer> testAList = new AList<Integer>();
+        AList<Integer> Ns = new AList<Integer>();
+        AList<Double> times = new AList<Double>();
+        AList<Integer> opCounts = new AList<Integer>();
+        for (int i = 1000; i <= 128000; i *= 2 ){
             Ns.addLast(i);
-            double startTime=System.currentTimeMillis();
-            int opCount=0;
-            for(int j=0;j<i;j++){
-                test.addLast(i);
-                opCount+=1;
+            double startTime = System.currentTimeMillis();
+            int opCount = 0;
+            for (int j = 0; j < i; j++){
+                testAList.addLast(j);
+                opCount += 1;
             }
             double endTime = System.currentTimeMillis();
             double time = (endTime - startTime) / 1000;
             opCounts.addLast(opCount);
             times.addLast(time);
         }
-        printTimingTable(Ns,times,opCounts);
+        // the time per addLast operation is the same for N = 1000 and N = 2000.
+        // due to issues like caching, process switching, branch prediction,
+        // etc. which you’ll learn about if you take 61C
+        printTimingTable(Ns, times, opCounts);
 
     }
 }
