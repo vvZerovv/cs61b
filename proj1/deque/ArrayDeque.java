@@ -41,7 +41,7 @@ public class ArrayDeque<T> implements Deque<T> {
             for (int i = 1; i < size + 1; i++) {
                 newarr[i - 1] = arr[i];
             }
-        } else if (nextfirst != 7) {
+        } else if (nextfirst != arr.length - 1) {
             for (int i = nextfirst + 1; i < arr.length; i++) {
                 newarr[i - nextfirst - 1] = arr[i];
             }
@@ -49,7 +49,7 @@ public class ArrayDeque<T> implements Deque<T> {
                 newarr[i + arr.length-nextfirst - 1] = arr[i];
             }
         } else {
-            for (int i = 0; i < arr.length; i++) {
+            for (int i = 0; i < size; i++) {
                 newarr[i] = arr[i];
             }
         }
@@ -138,6 +138,7 @@ public class ArrayDeque<T> implements Deque<T> {
     public void ifcutsize() {
         double useratio = (double)size / arr.length;
         while (size >= 16 && useratio < 0.25) {
+            useratio = useratio * 2;
             resize(arr.length / 2);
         }
     }
