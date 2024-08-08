@@ -72,24 +72,14 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
 
     @Override
     public void printDeque() {
-        if (nextfirst == 0) {
-            for (int i = 1; i < arr.length; i++) {
-                System.out.print(arr[i] + " ");
-            }
-            System.out.println(arr[0]);
-        } else if (nextlast == 0) {
-            for (int i = 0; i < arr.length; i++) {
-                System.out.print(arr[i] + " ");
-            }
-            System.out.println();
+        T[] newarr = (T[]) new Object[arr.length];
+        if (size == arr.length) {
+            newarr = arrayofnet(arr.length, true);
         } else {
-            for (int i = nextfirst + 1; i < arr.length; i++) {
-                System.out.print(arr[i] + " ");
-            }
-            for (int i = 0; i < nextlast; i++) {
-                System.out.print(arr[i] + " ");
-            }
-            System.out.println();
+            newarr = arrayofnet(arr.length, false);
+        }
+        for (T i : newarr) {
+            System.out.print(i + " ");
         }
     }
 
@@ -97,7 +87,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         double useratio = (double) size / arr.length;
         while (size >= 16 && useratio < 0.25) {
             useratio = useratio * 2;
-            resize(arr.length / 2, false);
+            resize(arr.length / 4, false);
         }
     }
 
@@ -137,7 +127,12 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
 
     @Override
     public T get(int index) {
-        T[] newarr = arrayofnet(arr.length, false);
+        T[] newarr = (T[]) new Object[arr.length];
+        if (size == arr.length) {
+            newarr = arrayofnet(arr.length, true);
+        } else {
+            newarr = arrayofnet(arr.length, false);
+        }
         return newarr[index];
     }
 
@@ -191,5 +186,29 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
             }
         }
         return true;
+    }
+    public static void main(String[] args) {
+        ArrayDeque<Integer> Arraydeque = new ArrayDeque<Integer>();
+        Arraydeque.addFirst(0);
+        Arraydeque.get(0);
+        Arraydeque.addLast(2);
+        Arraydeque.addLast(3);
+        Arraydeque.addFirst(4);
+        Arraydeque.addLast(5);
+        Arraydeque.removeLast()    ;
+        Arraydeque.get(0)      ;
+        Arraydeque.addLast(8);
+        Arraydeque.get(4);
+        Arraydeque.removeFirst();
+        Arraydeque.addFirst(11);
+        Arraydeque.get(3);
+        Arraydeque.addLast(13);
+        Arraydeque.addLast(14);
+        Arraydeque.get(6);
+        Arraydeque.addFirst(16);
+        Arraydeque.removeFirst();
+        Arraydeque.get(1);
+        Arraydeque.addFirst(19);
+        System.out.println(Arraydeque.get(7));
     }
 }
