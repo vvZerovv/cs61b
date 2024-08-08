@@ -14,24 +14,25 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         nextlast = 1;
     }
 
-    private T[] arrayofnet(int sizeafter,boolean addornot) {
+    private T[] arrayofnet(int sizeafter, boolean addornot) {
         T[] newarr = (T[]) new Object[sizeafter];
         if (addornot) {
             System.arraycopy(arr, nextlast, newarr, 0, size - nextlast);
             System.arraycopy(arr, 0, newarr, size - nextlast, nextlast);
         } else {
-            for (int i = (nextfirst + 1) % arr.length, j = 0; i < arr.length; i = (i + 1) % arr.length, j++) {
+            for (int i = (nextfirst + 1) % arr.length, j = 0; i < arr.length; i = (i + 1) % arr.length) {
                 if (arr[i] == null) {
                     break;
                 }
                 newarr[j] = arr[i];
+                j++;
             }
         }
         return newarr;
     }
 
-    private void resize(int sizeafter,boolean addornot) {
-        T[] newarr = arrayofnet(sizeafter,addornot);
+    private void resize(int sizeafter, boolean addornot) {
+        T[] newarr = arrayofnet(sizeafter, addornot);
         nextfirst = newarr.length - 1;
         nextlast = size;
         arr = newarr;
@@ -40,7 +41,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     @Override
     public void addFirst(T item) {
         if (size == arr.length) {
-            resize(size * 2,true);
+            resize(size * 2, true);
         }
         size += 1;
         arr[nextfirst] = item;
@@ -85,8 +86,8 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
 
     private void ifcutsize() {
         double useratio = (double) size / arr.length;
-        while (size >= 16 && useratio < 0.25) {
-            useratio = useratio * 2;
+        while (size >= 8 && useratio < 0.25) {
+            useratio = useratio * 4;
             resize(arr.length / 4, false);
         }
     }
@@ -111,14 +112,14 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         }
         if (nextlast == 0) {
             T revenumber = arr[(nextlast - 1) % arr.length + arr.length];
-            arr[(nextlast- 1) % arr.length + arr.length] = null;
+            arr[(nextlast - 1) % arr.length + arr.length] = null;
             nextlast = (nextlast - 1) % arr.length + arr.length;
             size--;
             ifcutsize();
             return revenumber;
         }
         T revenumber = arr[(nextlast - 1) % arr.length];
-        arr[(nextlast- 1) % arr.length] = null;
+        arr[(nextlast - 1) % arr.length] = null;
         nextlast = (nextlast - 1) % arr.length;
         size--;
         ifcutsize();
@@ -186,5 +187,11 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
             }
         }
         return true;
+    }
+    public static void main(String[] args) {
+        ArrayDeque<Integer> deque = new ArrayDeque<Integer>();
+        for (int i = 0; i < 64; i++) {
+            deque.addLast(i);
+        }
     }
 }
