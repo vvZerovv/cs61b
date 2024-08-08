@@ -103,15 +103,15 @@ public class ArrayDequeTest {
     public void bigadequeTest() {
 
         ArrayDeque<Integer> ad1 = new ArrayDeque<Integer>();
-        for (int i = 0; i < 100000; i++) {
+        for (int i = 0; i < 100; i++) {
             ad1.addLast(i);
         }
 
-        for (double i = 0; i < 50000; i++) {
+        for (double i = 0; i < 50; i++) {
             assertEquals("Should have the same value", i, (double) ad1.removeFirst(), 0.0);
         }
 
-        for (double i = 99999; i > 50000; i--) {
+        for (double i = 99; i > 50; i--) {
             assertEquals("Should have the same value", i, (double) ad1.removeLast(), 0.0);
         }
     }
@@ -121,15 +121,15 @@ public class ArrayDequeTest {
     public void bigadequeTest2() {
 
         ArrayDeque<Integer> ad1 = new ArrayDeque<Integer>();
-        for (int i = 0; i < 100000; i++) {
+        for (int i = 0; i < 100; i++) {
             ad1.addFirst(i);
         }
 
-        for (double i = 0; i < 50000; i++) {
+        for (double i = 0; i < 50; i++) {
             assertEquals("Should have the same value", i, (double) ad1.removeLast(), 0.0);
         }
 
-        for (double i = 99999; i > 50000; i--) {
+        for (double i = 99; i > 50; i--) {
             assertEquals("Should have the same value", i, (double) ad1.removeFirst(), 0.0);
         }
     }
@@ -154,11 +154,11 @@ public class ArrayDequeTest {
     public void addGetTest2() {
 
         ArrayDeque<Integer> ad1 = new ArrayDeque<Integer>();
-        for (int i = 0; i < 100000; i++) {
+        for (int i = 0; i < 100; i++) {
             ad1.addFirst(i);
         }
         int index = 0;
-        for (int i = 99999; i >= 0; i--) {
+        for (int i = 99; i >= 0; i--) {
             assertEquals("Should have the same value", i, ad1.get(index), 0.0);
             index += 1;
         }

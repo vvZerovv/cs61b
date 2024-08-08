@@ -13,10 +13,34 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         nextfirst = 0;
         nextlast = 1;
     }
+
+    private T[] arrayofnet(int sizeafter,boolean addornot) {
+        T[] newarr = (T[]) new Object[sizeafter];
+        if (addornot) {
+            System.arraycopy(arr, nextlast, newarr, 0, size - nextlast);
+            System.arraycopy(arr, 0, newarr, size - nextlast, nextlast);
+        } else {
+            for (int i = (nextfirst + 1) % arr.length, j = 0; i < arr.length; i = (i + 1) % arr.length, j++) {
+                if (arr[i] == null) {
+                    break;
+                }
+                newarr[j] = arr[i];
+            }
+        }
+        return newarr;
+    }
+
+    private void resize(int sizeafter,boolean addornot) {
+        T[] newarr = arrayofnet(sizeafter,addornot);
+        nextfirst = newarr.length - 1;
+        nextlast = size;
+        arr = newarr;
+    }
+
     @Override
     public void addFirst(T item) {
         if (size == arr.length) {
-            resize(2 * size);
+            resize(2 * size,true);
         }
         size += 1;
         arr[nextfirst] = item;
@@ -26,47 +50,11 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
             nextfirst--;
         }
     }
-    private T[] arrayofnet(int sizeafter) {
-        T[] newarr = (T[]) new Object[sizeafter];
-        if (nextfirst == 0 && size == arr.length) {
-            for (int i = 1; i < arr.length; i++) {
-                newarr[i - 1] = arr[i];
-            }
-            newarr[size - 1] = arr[0];
-        } else if (nextlast == 0 && size == arr.length) {
-            for (int i = 0; i < arr.length; i++) {
-                newarr[i] = arr[i];
-            }
-        } else if (nextfirst == 0) {
-            for (int i = 1; i < size + 1; i++) {
-                newarr[i - 1] = arr[i];
-            }
-        } else if (nextfirst != arr.length - 1) {
-            for (int i = nextfirst + 1; i < arr.length; i++) {
-                newarr[i - nextfirst - 1] = arr[i];
-            }
-            for (int i = 0; i < nextlast; i++) {
-                newarr[i + arr.length - nextfirst - 1] = arr[i];
-            }
-        } else {
-            for (int i = 0; i < size; i++) {
-                newarr[i] = arr[i];
-            }
-        }
-        return newarr;
-    }
-
-    private void resize(int sizeafter) {
-        T[] newarr = arrayofnet(sizeafter);
-        nextfirst = newarr.length - 1;
-        nextlast = size;
-        arr = newarr;
-    }
 
     @Override
     public void addLast(T item) {
         if (size == arr.length) {
-            resize(2 * size);
+            resize(2 * size, true);
         }
         size += 1;
         arr[nextlast] = item;
@@ -105,63 +93,46 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         }
     }
 
-    @Override
-    public T removeFirst() {
-        if (size == 0) {
-            return null;
-        } else {
-            T[] newarr = arrayofnet(arr.length);
-            T[] newarrnew = (T[]) new Object[arr.length];
-            System.arraycopy(newarr, 1, newarrnew, 0, size - 1);
-            size = size - 1;
-            arr = newarrnew;
-            ifcutsize();
-            if (size == 0) {
-                nextfirst = 0;
-                nextlast = 1;
-            } else {
-                nextfirst = arr.length - 1;
-                nextlast = size;
-            }
-            return newarr[0];
-        }
-    }
-
     private void ifcutsize() {
         double useratio = (double) size / arr.length;
         while (size >= 16 && useratio < 0.25) {
             useratio = useratio * 2;
-            resize(arr.length / 2);
+            resize(arr.length / 2, false);
         }
+    }
+
+    @Override
+    public T removeFirst() {
+        if (size == 0) {
+            return null;
+        }
+        T revenumber = arr[(nextfirst + 1) % arr.length];
+        arr[(nextfirst + 1) % arr.length] = null;
+        nextfirst = (nextfirst + 1) % arr.length;
+        size--;
+        ifcutsize();
+        return revenumber;
     }
 
     @Override
     public T removeLast() {
         if (size == 0) {
             return null;
-        } else {
-            T[] newarr = arrayofnet(arr.length);
-            T[] newarrnew = (T[]) new Object[arr.length];
-            System.arraycopy(newarr, 0, newarrnew, 0, size - 1);
-            size = size - 1;
-            arr = newarrnew;
-            ifcutsize();
-            if (size == 0) {
-                nextfirst = 0;
-                nextlast = 1;
-            } else {
-                nextfirst = arr.length - 1;
-                nextlast = size;
-            }
-            return newarr[size];
         }
+        T revenumber = arr[(nextlast - 1) % arr.length];
+        arr[(nextlast- 1) % arr.length] = null;
+        nextlast = (nextlast - 1) % arr.length;
+        size--;
+        ifcutsize();
+        return revenumber;
     }
 
     @Override
     public T get(int index) {
-        T[] newarr = arrayofnet(size);
+        T[] newarr = arrayofnet(arr.length, false);
         return newarr[index];
     }
+
     public Iterator<T> iterator() {
         return new ArrayDequeIterator();
     }
@@ -212,5 +183,22 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
             }
         }
         return true;
+    }
+    public static void main(String[] args) {
+        ArrayDeque<Integer> deque = new ArrayDeque<Integer>();
+        deque.addFirst(1);
+        deque.addFirst(2);
+        deque.addFirst(3);
+        deque.addFirst(4);
+        deque.addFirst(5);
+        deque.addFirst(6);
+        deque.addFirst(7);
+        deque.addFirst(8);
+        deque.addFirst(9);
+        deque.addFirst(10);
+        deque.addFirst(11);
+        deque.addFirst(12);
+        deque.addFirst(13);
+        deque.get(4);
     }
 }
