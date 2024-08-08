@@ -20,7 +20,8 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
             System.arraycopy(arr, nextlast, newarr, 0, size - nextlast);
             System.arraycopy(arr, 0, newarr, size - nextlast, nextlast);
         } else {
-            for (int i = (nextfirst + 1) % arr.length, j = 0; i < arr.length; i = (i + 1) % arr.length) {
+            int j = 0;
+            for (int i = (nextfirst + 1) % arr.length; i < arr.length; i = (i + 1) % arr.length) {
                 if (arr[i] == null) {
                     break;
                 }
