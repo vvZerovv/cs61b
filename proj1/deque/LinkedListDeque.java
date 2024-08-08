@@ -3,9 +3,9 @@ import java.util.Iterator;
 
 //based on linked list
 
-public class LinkedListDeque<T> implements Deque<T> {
+public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
 
-    public class Node {
+    private class Node {
         private Node prev;
         private T item;
         private Node next;
@@ -36,14 +36,14 @@ public class LinkedListDeque<T> implements Deque<T> {
         return gethelper(n, index);
     }
 
-    public T gethelper(Node n, int index) {
+    private T gethelper(Node n, int index) {
         if (index == 0) {
             return n.item;
         }
         if (n.next == sentinel) {
             return null;
         }
-        return gethelper(n.next, index-1);
+        return gethelper(n.next, index - 1);
     }
 
     @Override
@@ -60,13 +60,6 @@ public class LinkedListDeque<T> implements Deque<T> {
         size += 1;
     }
 
-    @Override
-    public boolean isEmpty() {
-        if (size == 0) {
-            return true;
-        }
-        return false;
-    }
 
     @Override
     public int size() {
@@ -134,7 +127,7 @@ public class LinkedListDeque<T> implements Deque<T> {
     }
     private class LinkedListDequeIterator implements Iterator<T> {
         private int cnt;
-        public LinkedListDequeIterator() {
+        LinkedListDequeIterator() {
             cnt = 0;
         }
         public boolean hasNext() {
@@ -161,7 +154,7 @@ public class LinkedListDeque<T> implements Deque<T> {
         if (obj.size() != this.size()) {
             return false;
         }
-        for(int i = 0; i < obj.size(); i += 1) {
+        for (int i = 0; i < obj.size(); i += 1) {
             T itemFromObj =  obj.get(i);
             T itemFromThis = this.get(i);
             if (!itemFromObj.equals(itemFromThis)) {
@@ -169,16 +162,6 @@ public class LinkedListDeque<T> implements Deque<T> {
             }
         }
         return true;
-    }
-    public static void main(String[] args){
-        LinkedListDeque<Integer> list = new LinkedListDeque<Integer>();
-        list.addLast(3);
-        list.addLast(4);
-        int m = list.removeFirst();
-        int n = list.removeFirst();
-        System.out.println(m);
-        System.out.println(n);
-
     }
 }
 

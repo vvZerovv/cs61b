@@ -2,7 +2,7 @@ package deque;
 
 import java.util.Iterator;
 
-public class ArrayDeque<T> implements Deque<T> {
+public class ArrayDeque<T> implements Deque<T>, Iterable<T>{
     private T[] arr;
     private int size;
     private int nextfirst;
@@ -16,7 +16,7 @@ public class ArrayDeque<T> implements Deque<T> {
     @Override
     public void addFirst(T item) {
         if (size == arr.length) {
-            resize(2*size);
+            resize(2 * size);
         }
         size += 1;
         arr[nextfirst] = item;
@@ -26,7 +26,7 @@ public class ArrayDeque<T> implements Deque<T> {
             nextfirst--;
         }
     }
-    public T[] arrayofnet(int sizeafter) {
+    private T[] arrayofnet(int sizeafter) {
         T[] newarr = (T[]) new Object[sizeafter];
         if (nextfirst == 0 && size == arr.length) {
             for (int i = 1; i < arr.length; i++) {
@@ -45,8 +45,8 @@ public class ArrayDeque<T> implements Deque<T> {
             for (int i = nextfirst + 1; i < arr.length; i++) {
                 newarr[i - nextfirst - 1] = arr[i];
             }
-            for (int i = 0;i<nextlast;i++) {
-                newarr[i + arr.length-nextfirst - 1] = arr[i];
+            for (int i = 0; i < nextlast; i++) {
+                newarr[i + arr.length - nextfirst - 1] = arr[i];
             }
         } else {
             for (int i = 0; i < size; i++) {
@@ -56,7 +56,7 @@ public class ArrayDeque<T> implements Deque<T> {
         return newarr;
     }
 
-    public void resize(int sizeafter) {
+    private void resize(int sizeafter) {
         T[] newarr = arrayofnet(sizeafter);
         nextfirst = newarr.length - 1;
         nextlast = size;
@@ -78,14 +78,6 @@ public class ArrayDeque<T> implements Deque<T> {
     }
 
     @Override
-    public boolean isEmpty() {
-        if (size == 0) {
-            return true;
-        }
-        return false;
-    }
-
-    @Override
     public int size() {
         return size;
     }
@@ -103,10 +95,10 @@ public class ArrayDeque<T> implements Deque<T> {
             }
             System.out.println();
         } else {
-            for (int i = nextfirst+1; i < arr.length; i++) {
+            for (int i = nextfirst + 1; i < arr.length; i++) {
                 System.out.print(arr[i] + " ");
             }
-            for (int i = 0; i<nextlast; i++) {
+            for (int i = 0; i < nextlast; i++) {
                 System.out.print(arr[i] + " ");
             }
             System.out.println();
@@ -135,8 +127,8 @@ public class ArrayDeque<T> implements Deque<T> {
         }
     }
 
-    public void ifcutsize() {
-        double useratio = (double)size / arr.length;
+    private void ifcutsize() {
+        double useratio = (double) size / arr.length;
         while (size >= 16 && useratio < 0.25) {
             useratio = useratio * 2;
             resize(arr.length / 2);
@@ -166,7 +158,7 @@ public class ArrayDeque<T> implements Deque<T> {
     }
 
     @Override
-    public T get(int index){
+    public T get(int index) {
         T[] newarr = arrayofnet(size);
         return newarr[index];
     }
@@ -177,7 +169,7 @@ public class ArrayDeque<T> implements Deque<T> {
     private class ArrayDequeIterator implements Iterator<T> {
         private int cnt;
 
-        public ArrayDequeIterator() {
+        ArrayDequeIterator() {
             cnt = 0;
         }
 
@@ -208,11 +200,11 @@ public class ArrayDeque<T> implements Deque<T> {
             return false;
         }
 
-        Deque<T> obj = (Deque<T>)o;
+        Deque<T> obj = (Deque<T>) o;
         if (obj.size() != this.size()) {
             return false;
         }
-        for(int i = 0; i < obj.size(); i += 1) {
+        for (int i = 0; i < obj.size(); i += 1) {
             T itemFromObj =  obj.get(i);
             T itemFromThis = this.get(i);
             if (!itemFromObj.equals(itemFromThis)) {
@@ -221,15 +213,4 @@ public class ArrayDeque<T> implements Deque<T> {
         }
         return true;
     }
-    public static void main(String[] args) {
-        LinkedListDeque<Integer> list = new LinkedListDeque<Integer>();
-        list.addLast(3);
-        int i = list.removeFirst();
-        System.out.println(i);
-        list.addLast(9);
-        int k = list.removeFirst();
-        System.out.println(k);
-    }
-
-
 }
