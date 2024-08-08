@@ -103,15 +103,15 @@ public class ArrayDequeTest {
     public void bigadequeTest() {
 
         ArrayDeque<Integer> ad1 = new ArrayDeque<Integer>();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 100000; i++) {
             ad1.addLast(i);
         }
 
-        for (double i = 0; i < 500; i++) {
+        for (double i = 0; i < 50000; i++) {
             assertEquals("Should have the same value", i, (double) ad1.removeFirst(), 0.0);
         }
 
-        for (double i = 999; i > 500; i--) {
+        for (double i = 99999; i > 50000; i--) {
             assertEquals("Should have the same value", i, (double) ad1.removeLast(), 0.0);
         }
     }
