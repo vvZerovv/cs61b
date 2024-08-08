@@ -40,7 +40,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     @Override
     public void addFirst(T item) {
         if (size == arr.length) {
-            resize(2 * size,true);
+            resize(size * 2,true);
         }
         size += 1;
         arr[nextfirst] = item;
@@ -54,7 +54,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     @Override
     public void addLast(T item) {
         if (size == arr.length) {
-            resize(2 * size, true);
+            resize(size * 2, true);
         }
         size += 1;
         arr[nextlast] = item;
@@ -186,29 +186,5 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
             }
         }
         return true;
-    }
-    public static void main(String[] args) {
-        ArrayDeque<Integer> Arraydeque = new ArrayDeque<Integer>();
-        Arraydeque.addFirst(0);
-        Arraydeque.get(0);
-        Arraydeque.addLast(2);
-        Arraydeque.addLast(3);
-        Arraydeque.addFirst(4);
-        Arraydeque.addLast(5);
-        Arraydeque.removeLast()    ;
-        Arraydeque.get(0)      ;
-        Arraydeque.addLast(8);
-        Arraydeque.get(4);
-        Arraydeque.removeFirst();
-        Arraydeque.addFirst(11);
-        Arraydeque.get(3);
-        Arraydeque.addLast(13);
-        Arraydeque.addLast(14);
-        Arraydeque.get(6);
-        Arraydeque.addFirst(16);
-        Arraydeque.removeFirst();
-        Arraydeque.get(1);
-        Arraydeque.addFirst(19);
-        System.out.println(Arraydeque.get(7));
     }
 }
