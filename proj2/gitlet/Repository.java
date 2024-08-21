@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static gitlet.Utils.*;
 
@@ -29,6 +30,8 @@ public class Repository {
     public static final File STAGING_AREA = join(GITLET_DIR, "staging");
     /** The file in staging area */
     public static final File LIST_FILE = join(STAGING_AREA, "list");
+    /** The map between blobs and  current working directory*/
+    public static final File HASH_DIR = join(GITLET_DIR, "hashmap");
 
     /**
      * Description: Creates a new Gitlet version-control system in the current directory.
@@ -49,7 +52,8 @@ public class Repository {
             GITLET_DIR.mkdirs();
             Commit.COMMITS_DIR.mkdirs();
             STAGING_AREA.mkdirs();
-            Blob.BLOBS_DIR.mkdir();
+            HashMap<File,Blob> blobs = new HashMap<>();
+            writeObject(HASH_DIR, blobs);
             Commit firstcommit = new Commit("initial commit",null, new ArrayList<String>());
             firstcommit.store();
         }
@@ -115,18 +119,20 @@ public class Repository {
         Commit current = Commit.getlast();
         ArrayList<String> parentsShot = current.getfiletree();
         String parentid = current.getId();
-        for(String file : newShot) {
-            File fileinStaged = join(STAGING_AREA, file);
-            File currentFile = join(CWD, file);
-            String content = readContentsAsString(fileinStaged);
-            if(parentsShot.contains(file)) {
-                File parentfile = join(Blob.BLOBS_DIR, file);
+        HashMap<File,Blob> blobs = readObject(HASH_DIR,HashMap.class);
+        for (String file : newShot) {
+            File stagedfile = join(STAGING_AREA, file);
+            File currentfile = join(CWD, file);
+            Blob blob = new Blob(currentfile, stagedfile);
+            if (blobs.containsKey(currentfile)) {
+                blobs.remove(stagedfile);
+                blobs.put(currentfile, blob);
             } else {
-                parentsShot.add(sha1(content));
-                Blob b = new Blob(currentFile);
+                blobs.put(stagedfile, blob);
+                parentsShot.add(blob.getId());
             }
         }
-        Commit newcommit = Commit(mes, parentid, );
-
+        writeObject(HASH_DIR, blobs);
+        Commit newcommit = new Commit(mes, parentid, parentsShot);
     }
 }
