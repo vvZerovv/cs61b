@@ -22,7 +22,16 @@ public class Main {
                 Repository.addCommand(args[1]);
                 break;
             case "commit":
+                if (args.length != 2) {
+                    System.out.println("Please enter a commit message.");
+                }
                 Repository.commitCommand(args[1]);
+                break;
+            case "checkout":
+                break;
+            case "rm":
+                Repository.rmCommand(args[1]);
+                break;
             default:
                 System.out.println("No command with that name exists.");
                 System.exit(0);

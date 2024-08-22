@@ -1,26 +1,20 @@
 package gitlet;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static gitlet.Commit.COMMITS_DIR;
 import static gitlet.Utils.*;
 
 
 /** Represents a gitlet repository.
- *  TODO: It's a good idea to give a description here of what else this Class
  *  does at a high level.
  *
  *  @author vv
  */
 public class Repository {
-    /**
-     *
-     *
-     * List all instance variables of the Repository class here with a useful
-     * comment above them describing what that variable represents and how that
-     * variable is used. We've provided two examples for you.
-     */
 
     /** The current working directory. */
     public static final File CWD = new File(System.getProperty("user.dir"));
@@ -28,111 +22,195 @@ public class Repository {
     public static final File GITLET_DIR = join(CWD, ".gitlet");
     /** The staging area. */
     public static final File STAGING_AREA = join(GITLET_DIR, "staging");
-    /** The file in staging area */
-    public static final File LIST_FILE = join(STAGING_AREA, "list");
+    /** The file in staging area for addition*/
+    public static final File ADD_LIST = join(STAGING_AREA, "addlist");
+    /** The file in staging area for removal*/
+    public static final File REMOVE_LIST = join(STAGING_AREA, "removelist");
     /** The map between blobs and  current working directory*/
     public static final File HASH_DIR = join(GITLET_DIR, "hashmap");
+    /** The commit tree*/
+    public static final File COMMITS_TREE = join(GITLET_DIR, "commitTree");
 
-    /**
-     * Description: Creates a new Gitlet version-control system in the current directory.
-     * This system will automatically start with one commit: a commit that contains no files
-     * and has the commit message initial commit (just like that, with no punctuation).
-     * TODO It will have a single branch: master, which initially points to this initial commit and master will be the current branch.
-     * The timestamp for this initial commit will be 00:00:00 UTC, Thursday, 1 January 1970
-     * in whatever format you choose for dates (this is called “The (Unix) Epoch”, represented internally by the time 0.)
-     * Since the initial commit in all repositories created by Gitlet will have exactly the same content, it follows that all
-     * repositories will automatically share this commit (they will all have the same UID) and all commits in all repositories will
-     * trace back to it.
-     */
+
+    //TODO:. It will have a single branch: master, which initially points to this initial commit, and master will be the current branch.
     public static void initCommand(){
         if (GITLET_DIR.exists()) {
             System.out.println("A Gitlet version-control system already exists in the current directory.");
             System.exit(0);
         } else {
             GITLET_DIR.mkdirs();
-            Commit.COMMITS_DIR.mkdirs();
+            COMMITS_DIR.mkdirs();
             STAGING_AREA.mkdirs();
-            HashMap<File,Blob> blobs = new HashMap<>();
+            ArrayList<String> list1 = new ArrayList<>();
+            ArrayList<String> list2 = new ArrayList<>();
+            writeObject(REMOVE_LIST, list2);
+            writeObject(ADD_LIST, list1);
+            HashMap<String, Blob> blobs = new HashMap<>();
             writeObject(HASH_DIR, blobs);
             Commit firstcommit = new Commit("initial commit",null, new ArrayList<String>());
+            Tree<String> tree = new Tree<>();
+            String id = firstcommit.getId();
+            tree.addtomain(id);
             firstcommit.store();
+            writeObject(COMMITS_TREE, tree);
         }
     }
 
-    /**
-     * Adds a copy of the file as it currently exists to the staging area
-     * (see the description of the commit command).
-     * For this reason, adding a file is also called staging the file for addition.
-     * Staging an already-staged file overwrites
-     * the previous entry in the staging area with the new contents.
-     * The staging area should be somewhere in .gitlet.
-     * If the current working version of the file is identical to the version in the current commit,
-     * do not stage it to be added, and remove it from the staging area if it is already there
-     * (as can happen when a file is changed, added, and then changed back to it’s original version).
-     * The file will no longer be staged for removal (see gitlet rm), if it was at the time of the command.
-     */
+
     public static void addCommand(String filename){
-        File file = join(CWD, filename);
-        if (!file.exists()) {
+        File current= join(CWD, filename);
+        File staged = join(STAGING_AREA, filename);
+        if (!current.exists()) {
             System.out.println("File does not exist.");
             System.exit(0);
         }
-        File staged = join(STAGING_AREA, filename);
-        if (staged.exists()) {
-            String contentnow = readContentsAsString(file);
-            String nowhash = sha1(contentnow);
-            String contentstaged = readContentsAsString(staged);
-            String stagedhash = sha1(contentstaged);
-            if (nowhash.equals(stagedhash)) {
+        String contentNow= readContentsAsString(current);
+        ArrayList<String> blobs = getCommitFileTree();
+        Blob blob = new Blob(current, current);
+        if (blobs.contains(blob.getId())) {
+            if (staged.exists()){
                 staged.delete();
-                System.exit(0);
+                ArrayList<String> obj =getAddList();
+                obj.remove(filename);
+                writeObject(ADD_LIST, obj);
             }
-            writeContents(staged, contentnow);
-            ArrayList<String> obj = new ArrayList<>();
-            obj.add(filename);
-            writeObject(LIST_FILE, obj);
+            System.exit(0);
         }
+        writeContents(staged, contentNow);
+        ArrayList<String> obj = getAddList();
+        obj.add(filename);
+        writeObject(ADD_LIST, obj);
     }
 
-    /**Saves a snapshot of tracked files in the current commit and staging area
-     * so they can be restored at a later time, creating a new commit.
-     * The commit is said to be tracking the saved files.
-     * By default, each commit’s snapshot of files will be exactly the same
-     * as its parent commit’s snapshot of files; it will keep versions of files
-     * exactly as they are, and not update them.
-     * A commit will only update the contents of files it is tracking
-     * that have been staged for addition at the time of commit,
-     * in which case the commit will now include the version of the file
-     * that was staged instead of the version it got from its parent.
-     * A commit will save and start tracking any files that were staged for
-     * addition but weren’t tracked by its parent. Finally, files tracked in
-     * the current commit may be untracked in the new commit as a result being staged
-     * TODO:for removal by the rm command (below).
-     * The bottom line: By default a commit has the same
-     * file contents as its parent. Files staged for addition
-     * and removal are the updates to the commit. Of course, the date (and likely the mesage)
-     * will also different from the parent.
-     *
-     */
+
+
+    //TODO:delete
     public static void commitCommand(String mes){
-        ArrayList<String> newShot = readObject(LIST_FILE,ArrayList.class);
-        Commit current = Commit.getlast();
+        ArrayList<String> newShot = getAddList();
+        ArrayList<String> deleteFile = getRemoveList();
+        if (newShot.isEmpty()) {
+            System.out.println("No changes added to the commit.");
+            System.exit(0);
+        }
+        HashMap<File, String> currentpath = getPath();
+        Commit current = getLastCommit();
         ArrayList<String> parentsShot = current.getfiletree();
         String parentid = current.getId();
-        HashMap<File,Blob> blobs = readObject(HASH_DIR,HashMap.class);
+        HashMap<String,Blob> blobs = getBlobs();
         for (String file : newShot) {
             File stagedfile = join(STAGING_AREA, file);
             File currentfile = join(CWD, file);
             Blob blob = new Blob(currentfile, stagedfile);
-            if (blobs.containsKey(currentfile)) {
-                blobs.remove(stagedfile);
-                blobs.put(currentfile, blob);
-            } else {
-                blobs.put(stagedfile, blob);
+            if (currentpath.containsKey(currentfile)) {
+                String blobId = currentpath.get(currentfile);
+                parentsShot.remove(blobId);
                 parentsShot.add(blob.getId());
+                updatemap(blob.getId(), blob);
+            } else {
+                parentsShot.add(blob.getId());
+                updatemap(blob.getId(), blob);
+            }
+            stagedfile.delete();
+        }
+        for (String file : deleteFile) {
+            File currentfile = join(CWD, file);
+            if (currentpath.containsKey(currentfile)) {
+                String blobId = currentpath.get(currentfile);
+                parentsShot.remove(blobId);
             }
         }
-        writeObject(HASH_DIR, blobs);
+        writeObject(ADD_LIST, new ArrayList<>());
+        writeObject(REMOVE_LIST, new ArrayList<>());
         Commit newcommit = new Commit(mes, parentid, parentsShot);
+        //the new commit is added as a new node in the commit tree.
+        newcommit.updateCommitTree();
+        newcommit.store();
     }
+
+
+    public static void rmCommand(String filename){
+        File staged = join(STAGING_AREA, filename);
+        if (staged.exists()) {
+            staged.delete();
+        }
+        ArrayList<File> files = getCommitTrackFile();
+        File deletefile = join(CWD, filename);
+        if (files.contains(deletefile) && deletefile.exists()) {
+            Blob blob = new Blob(deletefile, staged);
+            deletefile.delete();
+            ArrayList<String> deletefiles = getRemoveList();
+            deletefiles.add(filename);
+            writeObject(REMOVE_LIST, deletefiles);
+        }
+    }
+
+    //return the map of file dir and blob id  of the current commit
+    public static HashMap<File, String> getPath() {
+        HashMap<File, String> map = new HashMap<>();
+        Commit lastcommit = getLastCommit();
+        ArrayList<String> blobid = lastcommit.getfiletree();
+        HashMap<String, Blob> blobs = getBlobs();
+        for (String id : blobid ) {
+            Blob blob = blobs.get(id);
+            File path = blob.getFilePath();
+            map.put(path, id);
+        }
+        return map;
+    }
+
+    //return the current commit trace file
+    public static ArrayList<File> getCommitTrackFile(){
+        Commit lastcommit = getLastCommit();
+        ArrayList<String> filetree = lastcommit.getfiletree();
+        ArrayList<File> files = new ArrayList<>();
+        for (String file : filetree) {
+            File currentfile = join(CWD, file);
+            files.add(currentfile);
+        }
+        return files;
+    }
+
+    public static ArrayList<String> getCommitFileTree() {
+        Commit lastcommit = getLastCommit();
+        ArrayList<String> filetree = lastcommit.getfiletree();
+        return filetree;
+    }
+
+    public static Tree<String> getCommitTree(){
+        return readObject(COMMITS_TREE, Tree.class);
+    }
+
+    public static Commit getCommit(String id) {
+        File file = join(COMMITS_DIR, id);
+        Commit commit = readObject(file, Commit.class);
+        return commit;
+    }
+
+    //return the current commit
+    public static Commit getLastCommit() {
+        Tree<String> tree = getCommitTree();
+        String id = tree.getlast();
+        Commit commit = getCommit(id);
+        return commit;
+    }
+
+    public static ArrayList<String> getAddList() {
+        return readObject(ADD_LIST, ArrayList.class);
+    }
+
+    private static HashMap<String,Blob> getBlobs(){
+        return readObject(HASH_DIR, HashMap.class);
+    }
+
+    private static ArrayList<String> getRemoveList() {
+        return readObject(REMOVE_LIST, ArrayList.class);
+    }
+
+    // update the map of blob id and blob and serialize it
+    private static void updatemap(String s, Blob b) {
+        HashMap<String,Blob> blobs = getBlobs();
+        blobs.put(s, b);
+        writeObject(HASH_DIR, blobs);
+    }
+
 }

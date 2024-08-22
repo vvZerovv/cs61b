@@ -15,7 +15,7 @@ public class Blob implements Serializable {
         String text = readContentsAsString(staged);
         this.filePath = current;
         this.content = text;
-        this.id = sha1(content);
+        this.id = sha1(serialize(this));
     }
 
     public File getFilePath() {

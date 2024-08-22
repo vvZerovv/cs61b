@@ -1,7 +1,9 @@
 package gitlet;
 
-public class Tree<T> {
-    private class Node<T> {
+import java.io.Serializable;
+
+public class Tree<T> implements Serializable {
+    private class Node<T> implements Serializable {
         private T data;
         private Node<T> otherbranch ;
         private Node<T> mainbranch;
@@ -20,13 +22,24 @@ public class Tree<T> {
 
     //add data to main branch
     public void addtomain(T data){
-        addhelper(data, root);
+        root = addhelper(data,root);
     }
-    public Node addhelper(T data, Node<T> node){
-        if(node == null){
-            return new Node(data, null, null, false);
+    public Node<T> addhelper(T data, Node<T> node){
+        if (node == null) {
+            return new Node<T>(data,null,null,false);
+        } else {
+            node.mainbranch = addhelper(data,node.mainbranch);
         }
-        return addhelper(data, node.mainbranch);
+        return node;
+    }
+
+    private Node insert (T data, Node node){
+        if (node == null){
+            return new Node(data, null, null, false);
+        } else if (!node.data.equals(data) ){
+            node.mainbranch = insert(data, node.mainbranch);
+        }
+        return node;
     }
 
     //whether main branch contains data
@@ -51,6 +64,11 @@ public class Tree<T> {
         return gethelper(node.mainbranch);
 
     }
-
+    public static void main(String[] args) {
+        Tree<String> tree = new Tree();
+        tree.addtomain("hello");
+        String get = tree.getlast();
+        System.out.println(get);
+    }
 
 }
