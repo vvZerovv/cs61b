@@ -133,10 +133,9 @@ public class Repository {
         if (staged.exists()) {
             staged.delete();
         }
-        ArrayList<File> files = getCommitTrackFile();
+        HashMap<File, String> files = getPath();
         File deletefile = join(CWD, filename);
-        if (files.contains(deletefile) && deletefile.exists()) {
-            Blob blob = new Blob(deletefile, staged);
+        if (files.containsKey(deletefile) && deletefile.exists()) {
             deletefile.delete();
             ArrayList<String> deletefiles = getRemoveList();
             deletefiles.add(filename);
