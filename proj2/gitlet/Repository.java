@@ -95,7 +95,7 @@ public class Repository {
     public static void commitCommand(String mes){
         ArrayList<String> newShot = getAddList();
         ArrayList<String> deleteFile = getRemoveList();
-        if (newShot.isEmpty()) {
+        if (newShot.isEmpty() && deleteFile.isEmpty()) {
             System.out.println("No changes added to the commit.");
             System.exit(0);
         }
@@ -148,6 +148,9 @@ public class Repository {
         }
         if (staged.exists()) {
             staged.delete();
+            ArrayList<String> addList = getAddList();
+            addList.remove(filename);
+            writeObject(ADD_LIST, addList);
         }
         if (files.containsKey(deletefile) && deletefile.exists()) {
             deletefile.delete();
