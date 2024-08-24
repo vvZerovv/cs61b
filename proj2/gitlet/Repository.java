@@ -244,7 +244,7 @@ public class Repository {
             System.out.println("No commit with that id exists.");
             System.exit(0);
         }
-        HashMap<File,String> trackedPath = getPath();
+        HashMap<File,String> trackedPath = getPath(CommitId);
         File currentfile = join(CWD, filename);
         if (trackedPath.containsKey(currentfile)) {
             if (currentfile.exists()) {
@@ -254,6 +254,11 @@ public class Repository {
             HashMap<String,Blob> blobs = getBlobs();
             Blob blob = blobs.get(blobId);
             writeContents(currentfile,blob.getContent());
+
+
+            System.out.println(blob.getContent());
+
+
             ArrayList<String> removeFiles = getRemoveList();
             ArrayList<String> addFiles = getAddList();
             if (removeFiles.contains(filename)) {
@@ -296,10 +301,15 @@ public class Repository {
         Commit commit = readObject(branchFile, Commit.class);
         ArrayList<String> commitFiles = commit.getfiletree();
         HashMap<String, Blob> blobs = getBlobs();
+        for (File trackedFile : trackedPath.keySet()) {
+            trackedFile.delete();
+        }
         for (String blobid : commitFiles) {
             Blob blob = blobs.get(blobid);
             writeContents(blob.getFilePath(),blob.getContent());
         }
+        writeContents(BRANCH, branch);
+        writeObject(BRANCH, commit);
     }
 
     //return the map of file dir and blob id  of the current commit
