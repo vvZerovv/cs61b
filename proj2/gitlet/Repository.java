@@ -99,6 +99,9 @@ public class Repository {
             System.out.println("No changes added to the commit.");
             System.exit(0);
         }
+        if (mes.isEmpty()) {
+            System.out.println("Please enter a commit message.");
+        }
         HashMap<File, String> trackedPath = getPath();
         Commit current = getLastCommit();
         ArrayList<String> parentsShot = current.getfiletree();
@@ -138,19 +141,19 @@ public class Repository {
 
     public static void rmCommand(String filename){
         File staged = join(STAGING_DIR, filename);
+        HashMap<File, String> files = getPath();
+        File deletefile = join(CWD, filename);
+        if (!staged.exists() && !files.containsKey(deletefile)) {
+            System.out.println("No reason to remove the file.");
+        }
         if (staged.exists()) {
             staged.delete();
         }
-        HashMap<File, String> files = getPath();
-        File deletefile = join(CWD, filename);
         if (files.containsKey(deletefile) && deletefile.exists()) {
             deletefile.delete();
             ArrayList<String> deleteFiles = getRemoveList();
             deleteFiles.add(filename);
             writeObject(REMOVE_LIST, deleteFiles);
-        }
-        if (!staged.exists() && !files.containsKey(deletefile)) {
-            System.out.println("No reason to remove the file.");
         }
     }
 
