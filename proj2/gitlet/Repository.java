@@ -175,12 +175,14 @@ public class Repository {
 
     public static void globallogCommand(){
         List<String> files = plainFilenamesIn(COMMITS_DIR);
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy Z");
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT-08:00"));
         for (String file : files) {
             File commitFile = join(COMMITS_DIR, file);
             Commit commit = readObject(commitFile, Commit.class);
             System.out.println("===");
             System.out.println("commit "+commit.getId());
-            System.out.println("Date: "+commit.getTimestamp());
+            System.out.println("Date: "+sdf.format(commit.getTimestamp()));
             System.out.println(commit.getMessage());
             System.out.println();
         }
@@ -232,6 +234,10 @@ public class Repository {
         for (String file : removeFiles) {
             System.out.println(file);
         }
+        System.out.println();
+        System.out.println("=== Modifications Not Staged For Commit ===");
+        System.out.println();
+        System.out.println("=== Untracked Files ===");
         System.out.println();
     }
 
