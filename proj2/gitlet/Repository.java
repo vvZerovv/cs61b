@@ -55,9 +55,8 @@ public class Repository {
             HashMap<String, Blob> blobs = new HashMap<>();
             writeObject(HASH_MAP, blobs);
             Commit firstcommit = new Commit("initial commit",null, new ArrayList<String>());
-            String id = firstcommit.getId();
             firstcommit.store();
-            writeObject(BRANCH, "master");
+            writeContents(BRANCH, "master");
             writePointers(firstcommit);
         }
     }
