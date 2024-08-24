@@ -47,7 +47,7 @@ public class Main {
                     Repository.checkoutOne(args[2]);
                 }
                 if (args.length == 4) {
-                    Repository.checkoutTwo(args[2], args[3]);
+                    Repository.checkoutTwo(args[1], args[3]);
                 }
                 if (args.length == 2) {
                     Repository.checkoutThree(args[1]);

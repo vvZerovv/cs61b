@@ -2,9 +2,11 @@ package gitlet;
 
 import java.io.File;
 import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TimeZone;
 
 import static gitlet.Commit.COMMITS_DIR;
 import static gitlet.Utils.*;
@@ -157,10 +159,12 @@ public class Repository {
     //TODO:For merge commits??? (those that have two parent commits), add a line just below the first
     public static void logCommand() {
         Commit head = getLastCommit();
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy Z");
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT-08:00"));
         while (head!=null) {
             System.out.println("===");
             System.out.println("commit "+head.getId());
-            System.out.println("Date: "+head.getTimestamp());
+            System.out.println("Date: " + sdf.format(head.getTimestamp()));
             System.out.println(head.getMessage());
             System.out.println();
             head = getCommit(head.getparent());

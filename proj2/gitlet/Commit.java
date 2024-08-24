@@ -9,6 +9,7 @@ import static gitlet.Repository.*;
 import static gitlet.Utils.join;
 import static gitlet.Utils.*;
 
+
 /** Represents a gitlet commit object.
  *  does at a high level.
  *
@@ -38,7 +39,8 @@ public class Commit implements Serializable {
         if (parent == null) {
             timestamp = new Date(0);
         } else {
-            timestamp = new Date();
+            Date date = new Date();
+            timestamp = new Date(date.getTime());
         }
         this.id = sha1(serialize(this));
         //update head pointer
