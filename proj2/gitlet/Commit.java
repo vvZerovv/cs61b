@@ -5,8 +5,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
-import static gitlet.Repository.COMMITS_TREE;
-import static gitlet.Repository.GITLET_DIR;
+import static gitlet.Repository.*;
 import static gitlet.Utils.join;
 import static gitlet.Utils.*;
 
@@ -42,6 +41,9 @@ public class Commit implements Serializable {
             timestamp = new Date();
         }
         this.id = sha1(serialize(this));
+        //update head pointer
+        Commit HEAD = this;
+        writeObject(POINTER_HEAD,HEAD);
     }
 
     //store the commit in the COMMITS_DIR
@@ -50,23 +52,6 @@ public class Commit implements Serializable {
         writeObject(file,this);
     }
 
-    //update the commitTree
-    public void updateCommitTree() {
-        Tree<String> commitTree = readObject(COMMITS_TREE,Tree.class);
-        commitTree.addtomain(this.id);
-        writeObject(COMMITS_TREE, commitTree);
-    }
-
-
-
-    //return the current commit
-    public static Commit getlast() {
-        Tree<String> commitTree = readObject(COMMITS_TREE,Tree.class);
-        String parentid = commitTree.getlast();
-        File file = join(COMMITS_DIR, parentid);
-        Commit parent = readObject(file, Commit.class);
-        return parent;
-    }
 
     //get the filetree
     public ArrayList<String> getfiletree() {
@@ -77,6 +62,17 @@ public class Commit implements Serializable {
         return id;
     }
 
+    public String getparent() {
+        return parent;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public String getMessage() {
+        return message;
+    }
 
 
 }

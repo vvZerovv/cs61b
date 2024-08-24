@@ -27,10 +27,31 @@ public class Main {
                 }
                 Repository.commitCommand(args[1]);
                 break;
-            case "checkout":
-                break;
             case "rm":
                 Repository.rmCommand(args[1]);
+                break;
+            case "log":
+                Repository.logCommand();
+                break;
+            case "global-log":
+                Repository.globallogCommand();
+                break;
+            case "find":
+                Repository.findCommand(args[1]);
+                break;
+            case "status":
+                Repository.statusCommand();
+                break;
+            case "checkout":
+                if (args.length == 4) {
+                    Repository.checkoutOne(args[3]);
+                }
+                if (args.length == 5) {
+                    Repository.checkoutTwo(args[2], args[4]);
+                }
+                if (args.length == 2) {
+                    Repository.checkoutThree(args[1]);
+                }
                 break;
             default:
                 System.out.println("No command with that name exists.");

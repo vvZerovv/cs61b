@@ -64,11 +64,5 @@ public class Tree<T> implements Serializable {
         return gethelper(node.mainbranch);
 
     }
-    public static void main(String[] args) {
-        Tree<String> tree = new Tree();
-        tree.addtomain("hello");
-        String get = tree.getlast();
-        System.out.println(get);
-    }
 
 }
