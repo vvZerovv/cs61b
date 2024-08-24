@@ -254,11 +254,6 @@ public class Repository {
             HashMap<String,Blob> blobs = getBlobs();
             Blob blob = blobs.get(blobId);
             writeContents(currentfile,blob.getContent());
-
-
-            System.out.println(blob.getContent());
-
-
             ArrayList<String> removeFiles = getRemoveList();
             ArrayList<String> addFiles = getAddList();
             if (removeFiles.contains(filename)) {
@@ -290,7 +285,6 @@ public class Repository {
         HashMap<File,String> trackedPath = getPath();
         List<String> files = plainFilenamesIn(CWD);
         for (String name : files) {
-            System.out.println(name);
             File cwdfile  = join(CWD, name);
             if (!trackedPath.containsKey(cwdfile)) {
                 System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
