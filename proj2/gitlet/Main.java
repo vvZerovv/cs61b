@@ -44,9 +44,15 @@ public class Main {
                 break;
             case "checkout":
                 if (args.length == 3) {
+                    if (!args[1].equals("-")) {
+                        System.out.println("Incorrect operands.");
+                    }
                     Repository.checkoutOne(args[2]);
                 }
                 if (args.length == 4) {
+                    if (!args[2].equals("-")) {
+                        System.out.println("Incorrect operands.");
+                    }
                     Repository.checkoutTwo(args[1], args[3]);
                 }
                 if (args.length == 2) {
