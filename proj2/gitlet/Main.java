@@ -53,6 +53,11 @@ public class Main {
                     Repository.checkoutThree(args[1]);
                 }
                 break;
+            case "branch":
+                if (args.length == 2) {
+                    Repository.branchCommand(args[1]);
+                }
+                break;
             default:
                 System.out.println("No command with that name exists.");
                 System.exit(0);

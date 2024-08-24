@@ -139,9 +139,8 @@ public class Repository {
         writeObject(ADD_LIST, new ArrayList<>());
         writeObject(REMOVE_LIST, new ArrayList<>());
         Commit newcommit = new Commit(mes, parentid, parentsShot);
-        //the new commit is added as a new node in the commit tree.
-        newcommit.store();
         writePointers(newcommit);
+        newcommit.store();
     }
 
 
@@ -233,7 +232,7 @@ public class Repository {
             if (name.equals(file)) {
                 System.out.println("*"+file);
             } else {
-                System.out.println("other"+file);
+                System.out.println(file);
             }
         }
         System.out.println();
@@ -327,8 +326,19 @@ public class Repository {
             writeContents(blob.getFilePath(),blob.getContent());
         }
         writeContents(BRANCH, branch);
-        writeObject(BRANCH, commit);
+        writeObject(POINTER_HEAD, commit);
     }
+
+    public static void branchCommand(String branch) {
+        File file = join(BRANCHES_DIR, branch);
+        if (file.exists()) {
+            System.out.println("A branch with that name already exists.");
+            System.exit(0);
+        }
+        Commit commit = readObject(POINTER_HEAD, Commit.class);
+        writeObject(file, commit);
+    }
+
 
     //return the map of file dir and blob id  of the current commit
     public static HashMap<File, String> getPath() {
@@ -360,7 +370,7 @@ public class Repository {
             return null;
         }
         File file = join(COMMITS_DIR, id);
-       return readObject(file, Commit.class);
+        return readObject(file, Commit.class);
     }
 
     //return the current commit
@@ -404,8 +414,10 @@ public class Repository {
                 String originalString = file.toString();
                 String prefixToRemove = CWD.toString()+"\\";
                 String result = originalString.substring(prefixToRemove.length());
-                list.add(result);
-                writeObject(REMOVE_LIST, list);
+                if (!list.contains(result)) {
+                    list.add(result);
+                    writeObject(REMOVE_LIST, list);
+                }
             }
         }
     }
