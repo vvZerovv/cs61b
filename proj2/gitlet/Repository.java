@@ -65,11 +65,17 @@ public class Repository {
 
 
     public static void addCommand(String filename){
+        checkDelete();
         File current= join(CWD, filename);
         File staged = join(STAGING_DIR, filename);
         if (!current.exists()) {
             System.out.println("File does not exist.");
             System.exit(0);
+        }
+        ArrayList<String> removeList = getRemoveList();
+        if (removeList.contains(filename)) {
+            removeList.remove(filename);
+            writeObject(REMOVE_LIST, removeList);
         }
         String contentNow= readContentsAsString(current);
         ArrayList<String> blobs = getCommitFileTree();
@@ -93,6 +99,7 @@ public class Repository {
 
     //TODO:delete
     public static void commitCommand(String mes){
+        checkDelete();
         ArrayList<String> newShot = getAddList();
         ArrayList<String> deleteFile = getRemoveList();
         if (newShot.isEmpty() && deleteFile.isEmpty()) {
@@ -205,7 +212,7 @@ public class Repository {
             Commit commit = readObject(commitFile, Commit.class);
             String mes = commit.getMessage();
             if (mes.equals(message)) {
-                System.out.println("commit "+commit.getId());
+                System.out.println(commit.getId());
                 num += 1;
             }
         }
@@ -218,6 +225,7 @@ public class Repository {
 
     //TODO：Untracked Files and Modifications Not Staged For Commit
     public static void statusCommand(){
+        checkDelete();
         List<String> branches = plainFilenamesIn(BRANCHES_DIR);
         String name = readContentsAsString(BRANCH);
         System.out.println("=== Branches ===");
@@ -386,6 +394,20 @@ public class Repository {
         writeObject(POINTER_HEAD, commit);
         File file = join(BRANCHES_DIR, branch);
         writeObject(file, commit);
+    }
+
+    private static void checkDelete() {
+        HashMap<File,String> trackedPath = getPath();
+        for(File file : trackedPath.keySet()) {
+            if (!file.exists()) {
+                ArrayList<String> list = readObject(REMOVE_LIST, ArrayList.class);
+                String originalString = file.toString();
+                String prefixToRemove = CWD.toString()+"\\";
+                String result = originalString.substring(prefixToRemove.length());
+                list.add(result);
+                writeObject(REMOVE_LIST, list);
+            }
+        }
     }
 
 }
