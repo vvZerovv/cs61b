@@ -81,6 +81,7 @@ public class Main {
                 if (args.length == 2) {
                     Repository.resetCommand(args[1]);
                 }
+                break;
             default:
                 System.out.println("No command with that name exists.");
                 System.exit(0);
