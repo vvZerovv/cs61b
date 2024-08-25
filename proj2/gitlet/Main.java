@@ -1,5 +1,8 @@
 package gitlet;
 
+import static gitlet.Repository.BRANCH;
+import static gitlet.Utils.readContentsAsString;
+
 /** Driver class for Gitlet, a subset of the Git version-control system.
  *  @author vv
  */
@@ -56,6 +59,11 @@ public class Main {
                     Repository.checkoutTwo(args[1], args[3]);
                 }
                 if (args.length == 2) {
+                    String currentBranch = readContentsAsString(BRANCH);
+                    if (currentBranch.equals(args[1])) {
+                        System.out.println("No need to checkout the current branch.");
+                        System.exit(0);
+                    }
                     Repository.checkoutThree(args[1]);
                 }
                 break;

@@ -300,11 +300,6 @@ public class Repository {
             System.out.println("No such branch exists.");
             System.exit(0);
         }
-        String currentBranch = readContentsAsString(BRANCH);
-        if (currentBranch.equals(branch)) {
-            System.out.println("No need to checkout the current branch.");
-            System.exit(0);
-        }
         HashMap<File,String> trackedPath = getPath();
         List<String> files = plainFilenamesIn(CWD);
         for (String name : files) {
