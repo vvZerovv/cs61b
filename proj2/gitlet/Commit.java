@@ -31,11 +31,14 @@ public class Commit implements Serializable {
     private String id;
     /** The blobs id of this Commit. */
     private ArrayList<String> filetree;
+    /** the branch of the commit */
+    private String branch;
 
-    public Commit(String message,  String parent, ArrayList<String> filetree) {
+    public Commit(String message,  String parent, ArrayList<String> filetree, String branch) {
         this.message = message;
         this.parent = parent;
         this.filetree = filetree;
+        this.branch = branch;
         if (parent == null) {
             timestamp = new Date(0);
         } else {
@@ -76,5 +79,8 @@ public class Commit implements Serializable {
         return message;
     }
 
+    public String getBranch() {
+        return branch;
+    }
 
 }

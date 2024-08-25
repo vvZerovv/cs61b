@@ -56,7 +56,7 @@ public class Repository {
             writeObject(ADD_LIST, list1);
             HashMap<String, Blob> blobs = new HashMap<>();
             writeObject(HASH_MAP, blobs);
-            Commit firstcommit = new Commit("initial commit",null, new ArrayList<String>());
+            Commit firstcommit = new Commit("initial commit",null, new ArrayList<String>(), "master");
             firstcommit.store();
             writeContents(BRANCH, "master");
             writePointers(firstcommit);
@@ -138,7 +138,8 @@ public class Repository {
         }
         writeObject(ADD_LIST, new ArrayList<>());
         writeObject(REMOVE_LIST, new ArrayList<>());
-        Commit newcommit = new Commit(mes, parentid, parentsShot);
+        String branch = readContentsAsString(BRANCH);
+        Commit newcommit = new Commit(mes, parentid, parentsShot, branch);
         writePointers(newcommit);
         newcommit.store();
     }
@@ -291,7 +292,6 @@ public class Repository {
             System.out.println("File does not exist in that commit.");
             System.exit(0);
         }
-
     }
 
     public static void checkoutThree(String branch){
@@ -327,7 +327,11 @@ public class Repository {
         }
         writeContents(BRANCH, branch);
         writeObject(POINTER_HEAD, commit);
+        cleanStaging();
     }
+
+
+
 
     public static void branchCommand(String branch) {
         File file = join(BRANCHES_DIR, branch);
@@ -339,6 +343,32 @@ public class Repository {
         writeObject(file, commit);
     }
 
+
+    public static void rmbranchCommand(String branch) {
+        File file = join(BRANCHES_DIR, branch);
+        if (!file.exists()) {
+            System.out.println("A branch with that name does not exist.");
+            System.exit(0);
+        }
+        String currentBranch = readContentsAsString(BRANCH);
+        if (currentBranch.equals(branch)) {
+            System.out.println("Cannot remove the current branch.");
+            System.exit(0);
+        }
+        file.delete();
+    }
+
+    public static void resetCommand(String commitId) {
+        File file = join(COMMITS_DIR, commitId);
+        if (!file.exists()) {
+            System.out.println("No commit with that id exists.");
+            System.exit(0);
+        }
+        Commit commit = readObject(file, Commit.class);
+        writeObject(POINTER_HEAD, commit);
+        String branch = commit.getBranch();
+        checkoutThree(branch);
+    }
 
     //return the map of file dir and blob id  of the current commit
     public static HashMap<File, String> getPath() {
@@ -420,6 +450,11 @@ public class Repository {
                 }
             }
         }
+    }
+
+    private static void cleanStaging() {
+        writeObject(ADD_LIST, new ArrayList<>());
+        writeObject(REMOVE_LIST, new ArrayList<>());
     }
 
 }

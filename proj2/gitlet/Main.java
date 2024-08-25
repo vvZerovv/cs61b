@@ -64,6 +64,15 @@ public class Main {
                     Repository.branchCommand(args[1]);
                 }
                 break;
+            case "rm-branch":
+                if (args.length == 2) {
+                    Repository.rmbranchCommand(args[1]);
+                }
+                break;
+            case "reset":
+                if (args.length == 2) {
+                    Repository.resetCommand(args[1]);
+                }
             default:
                 System.out.println("No command with that name exists.");
                 System.exit(0);
