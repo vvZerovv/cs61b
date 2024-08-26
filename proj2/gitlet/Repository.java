@@ -401,6 +401,8 @@ public class Repository {
         }
         writeContents(BRANCH, commit.getBranch());
         writeObject(POINTER_HEAD, commit);
+        File branchfile  = join(BRANCHES_DIR, branch);
+        writeObject(branchfile, commit);
         cleanStaging();
     }
 
