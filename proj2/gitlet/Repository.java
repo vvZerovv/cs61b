@@ -42,8 +42,8 @@ public class Repository {
 
     public static void initCommand() {
         if (GITLET_DIR.exists()) {
-            System.out.println("A Gitlet version-control system already exists " +
-                    "in the current directory.");
+            System.out.println("A Gitlet version-control system already exists "
+                    + "in the current directory.");
             System.exit(0);
         } else {
             GITLET_DIR.mkdirs();
@@ -190,8 +190,8 @@ public class Repository {
             System.out.println("commit " + head.getId());
             if (!parent.isEmpty()) {
                 if (parent.size() == 2) {
-                    System.out.println("Merge: " + parent.get(0).substring(0, 7) +
-                            " " + parent.get(1).substring(0, 7));
+                    System.out.println("Merge: " + parent.get(0).substring(0, 7)
+                            + " " + parent.get(1).substring(0, 7));
                 }
             }
             System.out.println("Date: " + sdf.format(head.getTimestamp()));
@@ -286,7 +286,7 @@ public class Repository {
         if (commitId.length() == 8) {
             List<String> files = plainFilenamesIn(COMMITS_DIR);
             for (String file : files) {
-                if (file.startsWith(filename)) {
+                if (file.startsWith(commitId)) {
                     checkoutTwo(file, filename);
                     System.exit(0);
                 }
@@ -336,8 +336,8 @@ public class Repository {
         for (String name : files) {
             File cwdfile  = join(CWD, name);
             if (!trackedPath.containsKey(cwdfile) && trackedChange.containsKey(cwdfile)) {
-                System.out.println("There is an untracked file in the way; delete it, " +
-                        "or add and commit it first.");
+                System.out.println("There is an untracked file in the way; delete it, "
+                        + "or add and commit it first.");
                 System.exit(0);
             }
         }
@@ -467,9 +467,10 @@ public class Repository {
         List<String> files = plainFilenamesIn(CWD);
         for (String name : files) {
             File cwdfile = join(CWD, name);
-            if (!headPath.containsKey(cwdfile) && (branchPath.containsKey(cwdfile) || splitPath.containsKey(cwdfile))) {
-                System.out.println("There is an untracked file in the way; delete it, " +
-                        "or add and commit it first.");
+            if (!headPath.containsKey(cwdfile) && (branchPath.containsKey(cwdfile)
+                    || splitPath.containsKey(cwdfile))) {
+                System.out.println("There is an untracked file in the way; delete it, "
+                        + "or add and commit it first.");
                 System.exit(0);
             }
         }
@@ -498,7 +499,7 @@ public class Repository {
                             + blobOfHead.getContent()
                             + "=======" + "\n"
                             + blobOfBranch.getContent()
-                            +">>>>>>>" + "\n";;
+                            + ">>>>>>>" + "\n";
                     writeContents(name, contents);
                     Blob newBlob = new Blob(name, name);
                     filetree.add(newBlob.getId());
@@ -511,7 +512,7 @@ public class Repository {
                 filetree.add(branchPath.get(name));
                 writeContents(name, blobs.get(branchPath.get(name)).getContent());
                 String originalString = name.toString();
-                String prefixToRemove = CWD.toString()+"\\";
+                String prefixToRemove = CWD.toString() + "\\";
                 String result = originalString.substring(prefixToRemove.length());
                 if (!trackedfile.contains(result)) {
                     trackedfile.add(result);
@@ -533,20 +534,21 @@ public class Repository {
                             + ""
                             + "=======" + "\n"
                             + blobOfBranch.getContent()
-                            +">>>>>>>" + "\n";;
+                            + ">>>>>>>" + "\n";
                     writeContents(name, contents);
                     Blob newBlob = new Blob(name, name);
                     filetree.add(newBlob.getId());
                     blobs.put(newBlob.getId(), newBlob);
                     String originalString = name.toString();
-                    String prefixToRemove = CWD.toString()+"\\";
+                    String prefixToRemove = CWD.toString() + "\\";
                     String result = originalString.substring(prefixToRemove.length());
                     if (!trackedfile.contains(result)) {
                         trackedfile.add(result);
                     }
                 }
             }
-            if (splitPath.containsKey(name) && !branchPath.containsKey(name) && headPath.containsKey(name)) {
+            if (splitPath.containsKey(name) && !branchPath.containsKey(name)
+                    && headPath.containsKey(name)) {
                 if (!splitPath.get(name).equals(headPath.get(name))) {
                     Blob blobOfHead = blobs.get(headPath.get(name));
                     System.out.println("Encountered a merge conflict.");
@@ -563,8 +565,8 @@ public class Repository {
             }
         }
         writeObject(file3, trackedfile);
-        writeObject(HASH_MAP,blobs);
-        String mess = "Merged "+ branch + " into " + currentBranch + ".";
+        writeObject(HASH_MAP, blobs);
+        String mess = "Merged " + branch + " into " + currentBranch + ".";
         String s = headCommit.getId();
         String b = branchCommit.getId();
         ArrayList<String> list3 = new ArrayList<>();
@@ -588,7 +590,7 @@ public class Repository {
         Commit commit = getCommit(commitId);
         ArrayList<String> blobid = commit.getfiletree();
         HashMap<String, Blob> blobs = getBlobs();
-        for (String id : blobid ) {
+        for (String id : blobid) {
             Blob blob = blobs.get(id);
             File path = blob.getFilePath();
             map.put(path, id);
@@ -645,11 +647,11 @@ public class Repository {
 
     private static void checkDelete() {
         HashMap<File,String> trackedPath = getPath();
-        for(File file : trackedPath.keySet()) {
+        for (File file : trackedPath.keySet()) {
             if (!file.exists()) {
                 ArrayList<String> list = readObject(REMOVE_LIST, ArrayList.class);
                 String originalString = file.toString();
-                String prefixToRemove = CWD.toString()+"\\";
+                String prefixToRemove = CWD.toString() + "\\";
                 String result = originalString.substring(prefixToRemove.length());
                 if (!list.contains(result)) {
                     list.add(result);
