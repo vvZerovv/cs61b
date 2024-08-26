@@ -510,7 +510,7 @@ public class Repository {
 
 
     private static void mergehelper(File name, HashMap<File, String> branchPath
-    , HashMap<File, String> headPath, HashMap<File, String> splitPath, Commit headCommit) {
+            , HashMap<File, String> headPath, HashMap<File, String> splitPath, Commit headCommit) {
         HashMap<String, Blob> blobs = getBlobs();
         String currentBranch = readContentsAsString(BRANCH);
         File file3 = join(TRACKEDFILE, currentBranch);
