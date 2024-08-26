@@ -392,8 +392,8 @@ public class Repository {
         ArrayList<String> commitFiles = commit.getfiletree();
         HashMap<String, Blob> blobs = getBlobs();
         for (String trackedFile : trackedPath) {
-            File file2 = join(CWD, trackedFile);
-            file2.delete();
+            File file3 = join(CWD, trackedFile);
+            file3.delete();
         }
         for (String blobid : commitFiles) {
             Blob blob = blobs.get(blobid);
