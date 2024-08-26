@@ -480,12 +480,12 @@ public class Repository {
                     System.out.println("Encountered a merge conflict.");
                     Blob blobOfHead = blobs.get(headPath.get(name));
                     Blob blobOfBranch = blobs.get(branchPath.get(name));
-                    String content = "<<<<<<< HEAD" + "\r\n"
-                                      + blobOfHead.getContent() + "\r\n"
-                                      + "=======" + "\r\n"
-                                      + blobOfBranch.getContent() + "\r\n"
-                                      + ">>>>>>>" + "\r\n";
-                    writeContents(name, content);
+                    String contents = "<<<<<<< HEAD" + "\n"
+                            + blobOfHead.getContent()
+                            + "=======" + "\n"
+                            + blobOfBranch.getContent()
+                            +">>>>>>>" + "\n";;
+                    writeContents(name, contents);
                     Blob newBlob = new Blob(name, name);
                     filetree.add(newBlob.getId());
                     blobs.put(newBlob.getId(), newBlob);
@@ -506,7 +506,7 @@ public class Repository {
                 if (!splitPath.get(name).equals(branchPath.get(name))) {
                     Blob blobOfBranch = blobs.get(branchPath.get(name));
                     System.out.println("Encountered a merge conflict.");
-                    String content = "<<<<<<< HEAD\r\n" + "=======\r\n" + blobOfBranch.getContent() + "\r\n>>>>>>>\r\n";
+                    String content = "<<<<<<< HEAD\n" + "=======\n" + blobOfBranch.getContent() + ">>>>>>>";
                     writeContents(name, content);
                     Blob newBlob = new Blob(name, name);
                     filetree.add(newBlob.getId());
@@ -517,7 +517,7 @@ public class Repository {
                 if (!splitPath.get(name).equals(headPath.get(name))) {
                     Blob blobOfHead = blobs.get(headPath.get(name));
                     System.out.println("Encountered a merge conflict.");
-                    String content = "<<<<<<< HEAD\r\n" + blobOfHead.getContent() + "\r\n=======" + "\r\n>>>>>>>\r\n";
+                    String content = "<<<<<<< HEAD\n" + blobOfHead.getContent() + "=======" + "\n>>>>>>>";
                     writeContents(name, content);
                     Blob newBlob = new Blob(name, name);
                     filetree.add(newBlob.getId());
