@@ -429,6 +429,11 @@ public class Repository {
         Commit branchCommit = readObject(file, Commit.class);
         Commit headCommit = getLastCommit();
         Commit splitCommit = getSplit(branchCommit, headCommit);
+        String currentBranch = readContentsAsString(BRANCH);
+        if (currentBranch.equals(branch)) {
+            System.out.println("Cannot merge a branch with itself.");
+            System.exit(0);
+        }
         if (splitCommit.getId().equals(branchCommit.getId())) {
             System.out.println("Given branch is an ancestor of the current branch.");
             System.exit(0);
@@ -443,11 +448,6 @@ public class Repository {
             System.out.println("You have uncommitted changes.");
             System.exit(0);
         }
-        String currentBranch = readContentsAsString(BRANCH);
-        if (currentBranch.equals(branch)) {
-            System.out.println("Cannot merge a branch with itself.");
-            System.exit(0);
-        }
         HashMap<File, String> branchPath = getPath(branchCommit.getId());
         HashMap<File, String> headPath = getPath(headCommit.getId());
         HashMap<File, String> splitPath = getPath(splitCommit.getId());
@@ -456,7 +456,7 @@ public class Repository {
         List<String> files = plainFilenamesIn(CWD);
         for (String name : files) {
             File cwdfile = join(CWD, name);
-            if (!trackedfile.contains(cwdfile) && (headPath.containsKey(cwdfile) || splitPath.containsKey(cwdfile))) {
+            if (!headPath.containsKey(cwdfile) && (headPath.containsKey(cwdfile) || splitPath.containsKey(cwdfile))) {
                 System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
                 System.exit(0);
             }
