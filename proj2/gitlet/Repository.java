@@ -489,6 +489,7 @@ public class Repository {
             if (splitPath.containsKey(name) && !branchPath.containsKey(name) && headPath.containsKey(name)) {
                 if (splitPath.get(name).equals(headPath.get(name))) {
                     filetree.remove(headPath.get(name));
+                    name.delete();
                 }
             }
             if (splitPath.containsKey(name) && branchPath.containsKey(name) && !headPath.containsKey(name)) {
