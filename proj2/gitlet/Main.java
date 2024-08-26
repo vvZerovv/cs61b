@@ -1,6 +1,7 @@
 package gitlet;
 
 import static gitlet.Repository.BRANCH;
+import static gitlet.Repository.checkgitlet;
 import static gitlet.Utils.readContentsAsString;
 
 /** Driver class for Gitlet, a subset of the Git version-control system.
@@ -22,30 +23,38 @@ public class Main {
                 Repository.initCommand();
                 break;
             case "add":
+                checkgitlet();
                 Repository.addCommand(args[1]);
                 break;
             case "commit":
+                checkgitlet();
                 if (args.length != 2) {
                     System.out.println("Please enter a commit message.");
                 }
                 Repository.commitCommand(args[1]);
                 break;
             case "rm":
+                checkgitlet();
                 Repository.rmCommand(args[1]);
                 break;
             case "log":
+                checkgitlet();
                 Repository.logCommand();
                 break;
             case "global-log":
+                checkgitlet();
                 Repository.globallogCommand();
                 break;
             case "find":
+                checkgitlet();
                 Repository.findCommand(args[1]);
                 break;
             case "status":
+                checkgitlet();
                 Repository.statusCommand();
                 break;
             case "checkout":
+                checkgitlet();
                 if (args.length == 3) {
                     if (!args[1].equals("--")) {
                         System.out.println("Incorrect operands.");
@@ -68,21 +77,25 @@ public class Main {
                 }
                 break;
             case "branch":
+                checkgitlet();
                 if (args.length == 2) {
                     Repository.branchCommand(args[1]);
                 }
                 break;
             case "rm-branch":
+                checkgitlet();
                 if (args.length == 2) {
                     Repository.rmbranchCommand(args[1]);
                 }
                 break;
             case "reset":
+                checkgitlet();
                 if (args.length == 2) {
                     Repository.resetCommand(args[1]);
                 }
                 break;
             case "merge":
+                checkgitlet();
                 if (args.length == 2) {
                     Repository.mergeCommand(args[1]);
                 }

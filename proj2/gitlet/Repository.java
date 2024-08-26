@@ -439,6 +439,7 @@ public class Repository {
             System.exit(0);
         }
         if (splitCommit.getId().equals(headCommit.getId())) {
+            checkoutThree(branch);
             System.out.println("Current branch fast-forwarded.");
             System.exit(0);
         }
@@ -456,7 +457,7 @@ public class Repository {
         List<String> files = plainFilenamesIn(CWD);
         for (String name : files) {
             File cwdfile = join(CWD, name);
-            if (!headPath.containsKey(cwdfile) && (headPath.containsKey(cwdfile) || splitPath.containsKey(cwdfile))) {
+            if (!headPath.containsKey(cwdfile) && (branchPath.containsKey(cwdfile) || splitPath.containsKey(cwdfile))) {
                 System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
                 System.exit(0);
             }
@@ -660,6 +661,9 @@ public class Repository {
         ArrayList<String> commits = new ArrayList<>();
         while (commit != null) {
             commits.add(commit.getId());
+            if (commit.getparent().size() == 2) {
+                commits.add(commit.getparent().get(1));
+            }
             if (commit.getparent().isEmpty()) {
                 break;
             }
@@ -668,4 +672,10 @@ public class Repository {
         return commits;
     }
 
+    public static void checkgitlet() {
+        if (!GITLET_DIR.exists()) {
+            System.out.println("Not in an initialized Gitlet directory.");
+            System.exit(0);
+        }
+    }
 }
