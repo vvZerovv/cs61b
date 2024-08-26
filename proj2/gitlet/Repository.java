@@ -381,7 +381,7 @@ public class Repository {
             System.exit(0);
         }
         List<String> files = plainFilenamesIn(CWD);
-        File file2 = join(BRANCHES_DIR, branch);
+        File file2 = join(TRACKEDFILE, branch);
         ArrayList<String> trackedPath = readObject(file2, ArrayList.class);
         for (String name : files) {
             if (!trackedPath.contains(file)) {
