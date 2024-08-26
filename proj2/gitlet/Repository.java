@@ -283,6 +283,15 @@ public class Repository {
 
     public static void checkoutTwo(String CommitId, String filename){
         File commitFile = join(COMMITS_DIR, CommitId);
+        if (filename.length() == 8) {
+            List<String> files = plainFilenamesIn(COMMITS_DIR);
+            for (String file : files) {
+                if (file.startsWith(filename)) {
+                    checkoutTwo(file, filename);
+                    System.exit(0);
+                }
+            }
+        }
         if (!commitFile.exists()) {
             System.out.println("No commit with that id exists.");
             System.exit(0);
