@@ -350,9 +350,6 @@ public class Repository {
         File file2 = join(TRACKEDFILE, branch);
         writeObject(file2, new ArrayList<String>());
         Commit commit = readObject(POINTER_HEAD, Commit.class);
-        commit.changeBranch(branch);
-        File commitFile = join(COMMITS_DIR, commit.getId());
-        writeObject(commitFile, commit);
         writeObject(file, commit);
     }
 
