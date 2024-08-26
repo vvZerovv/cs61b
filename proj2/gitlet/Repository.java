@@ -119,7 +119,7 @@ public class Repository {
         Commit current = getLastCommit();
         ArrayList<String> parentsShot = current.getfiletree();
         String parentid = current.getId();
-        String currentBranch = current.getBranch();
+        String currentBranch = readContentsAsString(BRANCH);
         File file2 = join(TRACKEDFILE, currentBranch);
         ArrayList<String> trackedfile = readObject(file2, ArrayList.class);
         for (String file : newShot) {
@@ -350,6 +350,9 @@ public class Repository {
         File file2 = join(TRACKEDFILE, branch);
         writeObject(file2, new ArrayList<String>());
         Commit commit = readObject(POINTER_HEAD, Commit.class);
+        commit.changeBranch(branch);
+        File commitFile = join(COMMITS_DIR, commit.getId());
+        writeObject(commitFile, commit);
         writeObject(file, commit);
     }
 
