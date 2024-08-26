@@ -372,9 +372,8 @@ public class Repository {
             System.exit(0);
         }
         Commit commit = readObject(fileC, Commit.class);
-        writeObject(POINTER_HEAD, commit);
-        writeContents(BRANCH, commit.getBranch());
-        String branch = commit.getBranch();
+        Commit currentcommit = getLastCommit();
+        String branch = currentcommit.getBranch();
         File file = join(BRANCHES_DIR, branch);
         if (!file.exists()) {
             System.out.println("No such branch exists.");
@@ -399,6 +398,8 @@ public class Repository {
             Blob blob = blobs.get(blobid);
             writeContents(blob.getFilePath(),blob.getContent());
         }
+        writeObject(POINTER_HEAD, commit);
+        writeContents(BRANCH, commit.getBranch());
         cleanStaging();
     }
 
