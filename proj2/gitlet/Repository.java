@@ -116,6 +116,8 @@ public class Repository {
         Commit current = getLastCommit();
         ArrayList<String> parentsShot = current.getfiletree();
         String parentid = current.getId();
+        ArrayList<String> parent = new ArrayList<>();
+        parent.add(parentid);
         String currentBranch = readContentsAsString(BRANCH);
         File file2 = join(TRACKEDFILE, currentBranch);
         ArrayList<String> trackedfile = readObject(file2, ArrayList.class);
@@ -148,7 +150,7 @@ public class Repository {
         writeObject(ADD_LIST, new ArrayList<>());
         writeObject(REMOVE_LIST, new ArrayList<>());
         String branch = readContentsAsString(BRANCH);
-        Commit newcommit = new Commit(mes, parentid, parentsShot, branch);
+        Commit newcommit = new Commit(mes, parent, parentsShot, branch);
         writePointers(newcommit);
         newcommit.store();
     }
@@ -183,13 +185,17 @@ public class Repository {
         Commit head = getLastCommit();
         SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy Z");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT-08:00"));
-        while (head!=null) {
+        while (head != null) {
+            ArrayList<String> parent = head.getparent();
             System.out.println("===");
-            System.out.println("commit "+head.getId());
+            System.out.println("commit "+ head.getId());
+            if (parent.size() == 2) {
+                System.out.println("Merge: " + parent.get(0).substring(0,7) + " "+ parent.get(1).substring(0,7));
+            }
             System.out.println("Date: " + sdf.format(head.getTimestamp()));
             System.out.println(head.getMessage());
             System.out.println();
-            head = getCommit(head.getparent());
+            head = getCommit(parent.get(0));
         }
     }
 
@@ -447,7 +453,6 @@ public class Repository {
                 System.exit(0);
             }
         }
-        System.out.println("Merged "+ branch + " into " + currentBranch + ".");
         Set<File> allFiles = new HashSet<>();
         allFiles.addAll(headPath.keySet());
         allFiles.addAll(splitPath.keySet());
@@ -499,6 +504,15 @@ public class Repository {
                 }
             }
         }
+        String mess = "Merged "+ branch + " into " + currentBranch + ".";
+        ArrayList<String> list1 = headCommit.getparent();
+        ArrayList<String> list2 = branchCommit.getparent();
+        ArrayList<String> list3 = new ArrayList<>();
+        list3.add(list1.get(0));
+        list3.add(list2.get(0));
+        Commit newcommit = new Commit(mess, list3, filetree, currentBranch);
+        writePointers(newcommit);
+        newcommit.store();
     }
 
 
@@ -605,7 +619,7 @@ public class Repository {
         ArrayList<String> commits = new ArrayList<>();
         while (commit != null) {
             commits.add(commit.getId());
-            commit = getCommit(commit.getparent());
+            commit = getCommit(commit.getparent().get(0));
         }
         return commits;
     }
