@@ -404,7 +404,6 @@ public class Repository {
             Blob blob = blobs.get(blobid);
             writeContents(blob.getFilePath(),blob.getContent());
         }
-        writeContents(BRANCH, commit.getBranch());
         writeObject(POINTER_HEAD, commit);
         File branchfile  = join(BRANCHES_DIR, branch);
         writeObject(branchfile, commit);
