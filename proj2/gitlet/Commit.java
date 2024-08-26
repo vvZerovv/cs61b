@@ -83,4 +83,7 @@ public class Commit implements Serializable {
         return branch;
     }
 
+    public void changeBranch(String branch) {
+        this.branch = branch;
+    }
 }

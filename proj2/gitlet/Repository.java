@@ -350,6 +350,9 @@ public class Repository {
         File file2 = join(TRACKEDFILE, branch);
         writeObject(file2, new ArrayList<String>());
         Commit commit = readObject(POINTER_HEAD, Commit.class);
+        commit.changeBranch(branch);
+        File commitFile = join(COMMITS_DIR, commit.getId());
+        writeObject(commitFile, commit);
         writeObject(file, commit);
     }
 
@@ -382,11 +385,13 @@ public class Repository {
         File file2 = join(TRACKEDFILE, currentBranch);
         ArrayList<String> trackedPath = readObject(file2, ArrayList.class);
         HashMap<File, String> trackedChange = getPath(commitId);
-        for (String name : files) {
-            File cwdfile = join(CWD, name);
-            if (!trackedPath.contains(name) && trackedChange.containsKey(cwdfile)) {
-                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
-                System.exit(0);
+        if (files != null) {
+            for (String name : files) {
+                File cwdfile = join(CWD, name);
+                if (!trackedPath.contains(name) && trackedChange.containsKey(cwdfile)) {
+                    System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                    System.exit(0);
+                }
             }
         }
         ArrayList<String> commitFiles = commit.getfiletree();
