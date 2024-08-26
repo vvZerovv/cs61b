@@ -384,7 +384,7 @@ public class Repository {
         File file2 = join(TRACKEDFILE, branch);
         ArrayList<String> trackedPath = readObject(file2, ArrayList.class);
         for (String name : files) {
-            if (!trackedPath.contains(file)) {
+            if (!trackedPath.contains(name)) {
                 System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
                 System.exit(0);
             }
