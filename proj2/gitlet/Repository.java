@@ -379,10 +379,10 @@ public class Repository {
         List<String> files = plainFilenamesIn(CWD);
         File file2 = join(TRACKEDFILE, currentBranch);
         ArrayList<String> trackedPath = readObject(file2, ArrayList.class);
-        File file3 = join(TRACKEDFILE, branch);
-        ArrayList<String> trackedChange = readObject(file3, ArrayList.class);
+        HashMap<File, String> trackedChange = getPath(commitId);
         for (String name : files) {
-            if (!trackedPath.contains(name) && trackedChange.contains(name)) {
+            File cwdfile = join(CWD, name);
+            if (!trackedPath.contains(name) && trackedChange.containsKey(cwdfile)) {
                 System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
                 System.exit(0);
             }
