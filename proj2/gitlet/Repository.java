@@ -57,7 +57,7 @@ public class Repository {
             writeObject(ADD_LIST, list1);
             HashMap<String, Blob> blobs = new HashMap<>();
             writeObject(HASH_MAP, blobs);
-            Commit firstcommit = new Commit("initial commit",null, new ArrayList<String>(), "master");
+            Commit firstcommit = new Commit("initial commit", new ArrayList<>(), new ArrayList<String>(), "master");
             firstcommit.store();
             writeContents(BRANCH, "master");
             writePointers(firstcommit);
@@ -189,12 +189,17 @@ public class Repository {
             ArrayList<String> parent = head.getparent();
             System.out.println("===");
             System.out.println("commit "+ head.getId());
-            if (parent.size() == 2) {
-                System.out.println("Merge: " + parent.get(0).substring(0,7) + " "+ parent.get(1).substring(0,7));
+            if (!parent.isEmpty()) {
+                if (parent.size() == 2) {
+                    System.out.println("Merge: " + parent.get(0).substring(0,7) + " "+ parent.get(1).substring(0,7));
+                }
             }
             System.out.println("Date: " + sdf.format(head.getTimestamp()));
             System.out.println(head.getMessage());
             System.out.println();
+            if (parent.isEmpty()) {
+                break;
+            }
             head = getCommit(parent.get(0));
         }
     }
@@ -619,6 +624,9 @@ public class Repository {
         ArrayList<String> commits = new ArrayList<>();
         while (commit != null) {
             commits.add(commit.getId());
+            if (commit.getparent().isEmpty()) {
+                break;
+            }
             commit = getCommit(commit.getparent().get(0));
         }
         return commits;
