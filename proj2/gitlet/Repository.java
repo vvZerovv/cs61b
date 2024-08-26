@@ -354,7 +354,6 @@ public class Repository {
     }
 
     public static void resetCommand(String commitId) {
-        HashMap<File,String> trackedPath = getPath();
         File fileC = join(COMMITS_DIR, commitId);
         if (!fileC.exists()) {
             System.out.println("No commit with that id exists.");
@@ -362,6 +361,7 @@ public class Repository {
         }
         Commit commit = readObject(fileC, Commit.class);
         writeObject(POINTER_HEAD, commit);
+        writeContents(BRANCH, commit.getBranch());
         String branch = commit.getBranch();
         File file = join(BRANCHES_DIR, branch);
         if (!file.exists()) {
@@ -369,6 +369,7 @@ public class Repository {
             System.exit(0);
         }
         List<String> files = plainFilenamesIn(CWD);
+        HashMap<File,String> trackedPath = getPath();
         for (String name : files) {
             File cwdfile  = join(CWD, name);
             if (!trackedPath.containsKey(cwdfile)) {
@@ -376,7 +377,6 @@ public class Repository {
                 System.exit(0);
             }
         }
-        File branchFile = join(BRANCHES_DIR, branch);
         ArrayList<String> commitFiles = commit.getfiletree();
         HashMap<String, Blob> blobs = getBlobs();
         for (File trackedFile : trackedPath.keySet()) {
@@ -386,7 +386,6 @@ public class Repository {
             Blob blob = blobs.get(blobid);
             writeContents(blob.getFilePath(),blob.getContent());
         }
-        writeContents(BRANCH, branch);
         cleanStaging();
     }
 
