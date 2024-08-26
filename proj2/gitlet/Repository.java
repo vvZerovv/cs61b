@@ -449,7 +449,7 @@ public class Repository {
         ArrayList<String> filetree = headCommit.getfiletree();
         HashMap<String, Blob> blobs = getBlobs();
         for (File name : allFiles) {
-            mergehelper(name, branchPath, headPath, splitPath, filetree);
+            mergehelper(name, branchPath, headPath, splitPath, filetree, blobs, trackedfile);
         }
         writeObject(file3, trackedfile);
         writeObject(HASH_MAP, blobs);
@@ -466,11 +466,8 @@ public class Repository {
 
 
     private static void mergehelper(File name, HashMap<File, String> branchPath, HashMap
-            <File, String> headPath, HashMap<File, String> splitPath, ArrayList<String> filetree) {
-        HashMap<String, Blob> blobs = getBlobs();
-        String currentBranch = readContentsAsString(BRANCH);
-        File file3 = join(TRACKEDFILE, currentBranch);
-        ArrayList<String> trackedfile = readObject(file3, ArrayList.class);
+            <File, String> headPath, HashMap<File, String> splitPath, ArrayList
+            <String> filetree, HashMap<String, Blob> blobs, ArrayList<String> trackedfile) {
         if (splitPath.containsKey(name) && branchPath.containsKey(name)
                 && headPath.containsKey(name)) {
             if (!splitPath.get(name).equals(branchPath.get(name))
@@ -547,8 +544,6 @@ public class Repository {
                 blobs.put(newBlob.getId(), newBlob);
             }
         }
-        writeObject(file3, trackedfile);
-        writeObject(HASH_MAP, blobs);
     }
 
     //return the map of file dir and blob id  of the current commit
