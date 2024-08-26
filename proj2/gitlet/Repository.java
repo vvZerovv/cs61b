@@ -347,6 +347,8 @@ public class Repository {
             System.out.println("A branch with that name already exists.");
             System.exit(0);
         }
+        File file2 = join(TRACKEDFILE, branch);
+        writeObject(file2, new ArrayList<String>());
         Commit commit = readObject(POINTER_HEAD, Commit.class);
         writeObject(file, commit);
     }
