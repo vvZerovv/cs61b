@@ -39,6 +39,8 @@ public class Repository {
     public static final File BRANCH_MASTER = join(BRANCHES_DIR, "master");
     /** The head branch */
     public static final File BRANCH= join(GITLET_DIR, "currentBranch");
+    /** the tracked file of a branch */
+    public static final File TRACKEDFILE = join(GITLET_DIR, "trackedfile");
 
 
     public static void initCommand(){
@@ -50,8 +52,10 @@ public class Repository {
             COMMITS_DIR.mkdirs();
             STAGING_DIR.mkdirs();
             BRANCHES_DIR.mkdirs();
+            TRACKEDFILE.mkdirs();
             ArrayList<String> list1 = new ArrayList<>();
             ArrayList<String> list2 = new ArrayList<>();
+            ArrayList<String> list3 = new ArrayList<>();
             writeObject(REMOVE_LIST, list2);
             writeObject(ADD_LIST, list1);
             HashMap<String, Blob> blobs = new HashMap<>();
@@ -60,6 +64,8 @@ public class Repository {
             firstcommit.store();
             writeContents(BRANCH, "master");
             writePointers(firstcommit);
+            File file = join(TRACKEDFILE, "master");
+            writeObject(file, list3);
         }
     }
 
@@ -113,7 +119,9 @@ public class Repository {
         Commit current = getLastCommit();
         ArrayList<String> parentsShot = current.getfiletree();
         String parentid = current.getId();
-        HashMap<String,Blob> blobs = getBlobs();
+        String currentBranch = current.getBranch();
+        File file2 = join(TRACKEDFILE, currentBranch);
+        ArrayList<String> trackedfile = readObject(file2, ArrayList.class);
         for (String file : newShot) {
             File stagedfile = join(STAGING_DIR, file);
             File currentfile = join(CWD, file);
@@ -128,7 +136,11 @@ public class Repository {
                 updatemap(blob.getId(), blob);
             }
             stagedfile.delete();
+            if (!trackedfile.contains(file)) {
+                trackedfile.add(file);
+            }
         }
+        writeObject(TRACKEDFILE, trackedfile);
         for (String file : deleteFile) {
             File currentfile = join(CWD, file);
             if (trackedPath.containsKey(currentfile)) {
@@ -369,18 +381,18 @@ public class Repository {
             System.exit(0);
         }
         List<String> files = plainFilenamesIn(CWD);
-        HashMap<File,String> trackedPath = getPath();
+        ArrayList<String> trackedPath = readObject(TRACKEDFILE, ArrayList.class);
         for (String name : files) {
-            File cwdfile  = join(CWD, name);
-            if (!trackedPath.containsKey(cwdfile)) {
+            if (!trackedPath.contains(file)) {
                 System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
                 System.exit(0);
             }
         }
         ArrayList<String> commitFiles = commit.getfiletree();
         HashMap<String, Blob> blobs = getBlobs();
-        for (File trackedFile : trackedPath.keySet()) {
-            trackedFile.delete();
+        for (String trackedFile : trackedPath) {
+            File file2 = join(CWD, trackedFile);
+            file2.delete();
         }
         for (String blobid : commitFiles) {
             Blob blob = blobs.get(blobid);
