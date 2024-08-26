@@ -312,21 +312,24 @@ public class Repository {
             System.out.println("No such branch exists.");
             System.exit(0);
         }
-        HashMap<File,String> trackedPath = getPath();
         List<String> files = plainFilenamesIn(CWD);
+        String currentBranch = readContentsAsString(BRANCH);
+        File trackedFile = join(TRACKEDFILE, currentBranch);
+        ArrayList<String> trackedPath = readObject(trackedFile, ArrayList.class);
+        File branchFile = join(BRANCHES_DIR, branch);
+        Commit commit = readObject(branchFile, Commit.class);
+        HashMap<File, String> trackedChange = getPath(commit.getId());
         for (String name : files) {
             File cwdfile  = join(CWD, name);
-            if (!trackedPath.containsKey(cwdfile)) {
+            if (!trackedPath.contains(cwdfile) && trackedChange.containsKey(cwdfile)) {
                 System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
                 System.exit(0);
             }
         }
-        File branchFile = join(BRANCHES_DIR, branch);
-        Commit commit = readObject(branchFile, Commit.class);
         ArrayList<String> commitFiles = commit.getfiletree();
         HashMap<String, Blob> blobs = getBlobs();
-        for (File trackedFile : trackedPath.keySet()) {
-            trackedFile.delete();
+        for (File file2 : trackedChange.keySet()) {
+            file2.delete();
         }
         for (String blobid : commitFiles) {
             Blob blob = blobs.get(blobid);
@@ -366,41 +369,14 @@ public class Repository {
     }
 
     public static void resetCommand(String commitId) {
-        File fileC = join(COMMITS_DIR, commitId);
-        if (!fileC.exists()) {
-            System.out.println("No commit with that id exists.");
-            System.exit(0);
-        }
-        Commit commit = readObject(fileC, Commit.class);
-        Commit currentcommit = getLastCommit();
-        String branch = currentcommit.getBranch();
-        File file = join(BRANCHES_DIR, branch);
+        File file = join(COMMITS_DIR, commitId);
         if (!file.exists()) {
-            System.out.println("No such branch exists.");
-            System.exit(0);
+            System.out.println("No commit with that id exists.");
         }
-        List<String> files = plainFilenamesIn(CWD);
-        File file2 = join(TRACKEDFILE, branch);
-        ArrayList<String> trackedPath = readObject(file2, ArrayList.class);
-        for (String name : files) {
-            if (!trackedPath.contains(name)) {
-                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
-                System.exit(0);
-            }
-        }
-        ArrayList<String> commitFiles = commit.getfiletree();
-        HashMap<String, Blob> blobs = getBlobs();
-        for (String trackedFile : trackedPath) {
-            File file3 = join(CWD, trackedFile);
-            file3.delete();
-        }
-        for (String blobid : commitFiles) {
-            Blob blob = blobs.get(blobid);
-            writeContents(blob.getFilePath(),blob.getContent());
-        }
-        writeObject(POINTER_HEAD, commit);
+        Commit commit = getCommit(commitId);
         writeContents(BRANCH, commit.getBranch());
-        cleanStaging();
+        checkoutThree(commit.getBranch());
+        writeObject(POINTER_HEAD, commit);
     }
 
     //return the map of file dir and blob id  of the current commit
