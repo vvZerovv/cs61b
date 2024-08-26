@@ -527,11 +527,11 @@ public class Repository {
         }
         writeObject(HASH_MAP,blobs);
         String mess = "Merged "+ branch + " into " + currentBranch + ".";
-        ArrayList<String> list1 = headCommit.getparent();
-        ArrayList<String> list2 = branchCommit.getparent();
+        String s = headCommit.getId();
+        String b = branchCommit.getId();
         ArrayList<String> list3 = new ArrayList<>();
-        list3.add(list1.get(0));
-        list3.add(list2.get(0));
+        list3.add(s);
+        list3.add(b);
         Commit newcommit = new Commit(mess, list3, filetree, currentBranch);
         writePointers(newcommit);
         newcommit.store();
