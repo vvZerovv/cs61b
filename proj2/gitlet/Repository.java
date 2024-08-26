@@ -480,7 +480,11 @@ public class Repository {
                     System.out.println("Encountered a merge conflict.");
                     Blob blobOfHead = blobs.get(headPath.get(name));
                     Blob blobOfBranch = blobs.get(branchPath.get(name));
-                    String content = "<<<<<<< HEAD\n"+blobOfHead.getContent()+"\n=======\n"+blobOfBranch.getContent()+"\n>>>>>>>";
+                    String content = "<<<<<<< HEAD" + "\n"
+                                      + blobOfHead.getContent() + "\n"
+                                      + "=======" + "\n"
+                                      + blobOfBranch.getContent() + "\n"
+                                      + ">>>>>>>" + "\n";
                     writeContents(name, content);
                     Blob newBlob = new Blob(name, name);
                     filetree.add(newBlob.getId());
@@ -502,7 +506,7 @@ public class Repository {
                 if (!splitPath.get(name).equals(branchPath.get(name))) {
                     Blob blobOfBranch = blobs.get(branchPath.get(name));
                     System.out.println("Encountered a merge conflict.");
-                    String content = "<<<<<<< HEAD\n"+"=======\n"+blobOfBranch.getContent()+"\n>>>>>>>";
+                    String content = "<<<<<<< HEAD\n" + "=======\n" + blobOfBranch.getContent() + "\n>>>>>>>\n";
                     writeContents(name, content);
                     Blob newBlob = new Blob(name, name);
                     filetree.add(newBlob.getId());
@@ -513,7 +517,7 @@ public class Repository {
                 if (!splitPath.get(name).equals(headPath.get(name))) {
                     Blob blobOfHead = blobs.get(headPath.get(name));
                     System.out.println("Encountered a merge conflict.");
-                    String content = "<<<<<<< HEAD\n"+blobOfHead.getContent()+"\n======="+"\n>>>>>>>";
+                    String content = "<<<<<<< HEAD\n" + blobOfHead.getContent() + "\n=======" + "\n>>>>>>>\n";
                     writeContents(name, content);
                     Blob newBlob = new Blob(name, name);
                     filetree.add(newBlob.getId());
