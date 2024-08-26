@@ -3,10 +3,7 @@ package gitlet;
 import java.io.File;
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 import static gitlet.Commit.COMMITS_DIR;
 import static gitlet.Utils.*;
@@ -411,6 +408,101 @@ public class Repository {
         cleanStaging();
     }
 
+    public static void mergeCommand(String branch) {
+        File file = join(BRANCHES_DIR, branch);
+        if (!file.exists()) {
+            System.out.println("A branch with that name does not exist.");
+            System.exit(0);
+        }
+        Commit branchCommit = readObject(file, Commit.class);
+        Commit headCommit = getLastCommit();
+        Commit splitCommit = getSplit(branchCommit, headCommit);
+        if (splitCommit.getId().equals(branchCommit.getId())) {
+            System.out.println("Given branch is an ancestor of the current branch.");
+            System.exit(0);
+        }
+        if (splitCommit.getId().equals(headCommit.getId())) {
+            System.out.println("Current branch fast-forwarded.");
+            System.exit(0);
+        }
+        ArrayList<String> addList = getAddList();
+        ArrayList<String> removeList = getRemoveList();
+        if (!addList.isEmpty() || !removeList.isEmpty()) {
+            System.out.println("You have uncommitted changes.");
+            System.exit(0);
+        }
+        String currentBranch = readContentsAsString(BRANCH);
+        if (currentBranch.equals(branch)) {
+            System.out.println("Cannot merge a branch with itself.");
+            System.exit(0);
+        }
+        HashMap<File, String> branchPath = getPath(branchCommit.getId());
+        HashMap<File, String> headPath = getPath(headCommit.getId());
+        HashMap<File, String> splitPath = getPath(splitCommit.getId());
+        List<String> files = plainFilenamesIn(CWD);
+        for (String name : files) {
+            File cwdfile = join(CWD, name);
+            if (!headPath.containsKey(cwdfile) && (headPath.containsKey(cwdfile) || splitPath.containsKey(cwdfile))) {
+                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                System.exit(0);
+            }
+        }
+        System.out.println("Merged "+ branch + " into " + currentBranch + ".");
+        Set<File> allFiles = new HashSet<>();
+        allFiles.addAll(headPath.keySet());
+        allFiles.addAll(splitPath.keySet());
+        allFiles.addAll(branchPath.keySet());
+        ArrayList<String> filetree = headCommit.getfiletree();
+        HashMap<String, Blob> blobs = getBlobs();
+        for (File fil : allFiles) {
+            if (splitPath.containsKey(fil) && branchPath.containsKey(fil) && headPath.containsKey(fil)) {
+                if (!splitPath.get(fil).equals(branchPath.get(fil)) && splitPath.get(fil).equals(headPath.get(fil))) {
+                    filetree.remove(headPath.get(fil));
+                    filetree.add(branchPath.get(fil));
+                    writeContents(fil, blobs.get(branchPath.get(fil)).getContent());
+                }
+                if (!splitPath.get(fil).equals(branchPath.get(fil)) && !branchPath.get(fil).equals(headPath.get(fil)) && !splitPath.get(fil).equals(headPath.get(fil))) {
+                    Blob blobOfHead = blobs.get(headPath.get(fil));
+                    Blob blobOfBranch = blobs.get(branchPath.get(fil));
+                    String content = "<<<<<<< HEAD\n"+blobOfHead.getContent()+"\n=======\n"+blobOfBranch.getContent()+"\n>>>>>>>";
+                    writeContents(fil, content);
+                    Blob newBlob = new Blob(fil, fil);
+                    filetree.add(newBlob.getId());
+                }
+            }
+            if (!splitPath.containsKey(fil) && branchPath.containsKey(fil) && !headPath.containsKey(fil)) {
+                filetree.remove(headPath.get(fil));
+                filetree.add(branchPath.get(fil));
+                writeContents(fil, blobs.get(branchPath.get(fil)).getContent());
+            }
+            if (splitPath.containsKey(fil) && !branchPath.containsKey(fil) && headPath.containsKey(fil)) {
+                if (splitPath.get(fil).equals(headPath.get(fil))) {
+                    filetree.remove(headPath.get(fil));
+                }
+            }
+            if (splitPath.containsKey(fil) && branchPath.containsKey(fil) && !headPath.containsKey(fil)) {
+                if (!splitPath.get(fil).equals(branchPath.get(fil))) {
+                    Blob blobOfBranch = blobs.get(branchPath.get(fil));
+                    String content = "<<<<<<< HEAD\n"+"\n=======\n"+blobOfBranch.getContent()+"\n>>>>>>>";
+                    writeContents(fil, content);
+                    Blob newBlob = new Blob(fil, fil);
+                    filetree.add(newBlob.getId());
+                }
+            }
+            if (splitPath.containsKey(fil) && !branchPath.containsKey(fil) && headPath.containsKey(fil)) {
+                if (!splitPath.get(fil).equals(headPath.get(fil))) {
+                    Blob blobOfHead = blobs.get(headPath.get(fil));
+                    String content = "<<<<<<< HEAD\n"+blobOfHead.getContent()+"\n=======\n"+"\n>>>>>>>";
+                    writeContents(fil, content);
+                    Blob newBlob = new Blob(fil, fil);
+                    filetree.add(newBlob.getId());
+                }
+            }
+        }
+    }
+
+
+
     //return the map of file dir and blob id  of the current commit
     public static HashMap<File, String> getPath() {
         Commit head = getLastCommit();
@@ -496,6 +588,26 @@ public class Repository {
     private static void cleanStaging() {
         writeObject(ADD_LIST, new ArrayList<>());
         writeObject(REMOVE_LIST, new ArrayList<>());
+    }
+
+    private static Commit getSplit(Commit commit, Commit head) {
+        ArrayList<String> list = getCommits(commit);
+        ArrayList<String> list2 = getCommits(head);
+        for (String com : list) {
+            if (list2.contains(com)) {
+                return getCommit(com);
+            }
+        }
+        return null;
+    }
+
+    private static ArrayList<String> getCommits(Commit commit) {
+        ArrayList<String> commits = new ArrayList<>();
+        while (commit != null) {
+            commits.add(commit.getId());
+            commit = getCommit(commit.getparent());
+        }
+        return commits;
     }
 
 }

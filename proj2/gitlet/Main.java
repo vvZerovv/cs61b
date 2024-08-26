@@ -82,6 +82,11 @@ public class Main {
                     Repository.resetCommand(args[1]);
                 }
                 break;
+            case "merge":
+                if (args.length == 2) {
+                    Repository.mergeCommand(args[1]);
+                }
+                break;
             default:
                 System.out.println("No command with that name exists.");
                 System.exit(0);
