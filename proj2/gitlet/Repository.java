@@ -406,8 +406,8 @@ public class Repository {
             for (String name : files) {
                 File cwdfile = join(CWD, name);
                 if (!trackedPath.contains(name) && trackedChange.containsKey(cwdfile)) {
-                    System.out.println("There is an untracked file in the way; delete it, " +
-                            "or add and commit it first.");
+                    System.out.println("There is an untracked file in the way; delete it, "
+                            + "or add and commit it first.");
                     System.exit(0);
                 }
             }
@@ -431,49 +431,17 @@ public class Repository {
 
 
     public static void mergeCommand(String branch) {
+        check(branch);
         File file = join(BRANCHES_DIR, branch);
-        if (!file.exists()) {
-            System.out.println("A branch with that name does not exist.");
-            System.exit(0);
-        }
         Commit branchCommit = readObject(file, Commit.class);
         Commit headCommit = getLastCommit();
         Commit splitCommit = getSplit(branchCommit, headCommit);
-        String currentBranch = readContentsAsString(BRANCH);
-        if (currentBranch.equals(branch)) {
-            System.out.println("Cannot merge a branch with itself.");
-            System.exit(0);
-        }
-        if (splitCommit.getId().equals(branchCommit.getId())) {
-            System.out.println("Given branch is an ancestor of the current branch.");
-            System.exit(0);
-        }
-        if (splitCommit.getId().equals(headCommit.getId())) {
-            checkoutThree(branch);
-            System.out.println("Current branch fast-forwarded.");
-            System.exit(0);
-        }
-        ArrayList<String> addList = getAddList();
-        ArrayList<String> removeList = getRemoveList();
-        if (!addList.isEmpty() || !removeList.isEmpty()) {
-            System.out.println("You have uncommitted changes.");
-            System.exit(0);
-        }
         HashMap<File, String> branchPath = getPath(branchCommit.getId());
         HashMap<File, String> headPath = getPath(headCommit.getId());
         HashMap<File, String> splitPath = getPath(splitCommit.getId());
+        String currentBranch = readContentsAsString(BRANCH);
         File file3 = join(TRACKEDFILE, currentBranch);
         ArrayList<String> trackedfile = readObject(file3, ArrayList.class);
-        List<String> files = plainFilenamesIn(CWD);
-        for (String name : files) {
-            File cwdfile = join(CWD, name);
-            if (!headPath.containsKey(cwdfile) && (branchPath.containsKey(cwdfile)
-                    || splitPath.containsKey(cwdfile))) {
-                System.out.println("There is an untracked file in the way; delete it, "
-                        + "or add and commit it first.");
-                System.exit(0);
-            }
-        }
         Set<File> allFiles = new HashSet<>();
         allFiles.addAll(headPath.keySet());
         allFiles.addAll(splitPath.keySet());
@@ -481,17 +449,17 @@ public class Repository {
         ArrayList<String> filetree = headCommit.getfiletree();
         HashMap<String, Blob> blobs = getBlobs();
         for (File name : allFiles) {
-            if (splitPath.containsKey(name) && branchPath.containsKey(name) &&
-                    headPath.containsKey(name)) {
-                if (!splitPath.get(name).equals(branchPath.get(name)) &&
-                        splitPath.get(name).equals(headPath.get(name))) {
+            if (splitPath.containsKey(name) && branchPath.containsKey(name)
+                    && headPath.containsKey(name)) {
+                if (!splitPath.get(name).equals(branchPath.get(name))
+                        && splitPath.get(name).equals(headPath.get(name))) {
                     filetree.remove(headPath.get(name));
                     filetree.add(branchPath.get(name));
                     writeContents(name, blobs.get(branchPath.get(name)).getContent());
                 }
                 if (!splitPath.get(name).equals(branchPath.get(name))
-                        && !branchPath.get(name).equals(headPath.get(name)) &&
-                        !splitPath.get(name).equals(headPath.get(name))) {
+                        && !branchPath.get(name).equals(headPath.get(name))
+                        && !splitPath.get(name).equals(headPath.get(name))) {
                     System.out.println("Encountered a merge conflict.");
                     Blob blobOfHead = blobs.get(headPath.get(name));
                     Blob blobOfBranch = blobs.get(branchPath.get(name));
@@ -506,8 +474,8 @@ public class Repository {
                     blobs.put(newBlob.getId(), newBlob);
                 }
             }
-            if (!splitPath.containsKey(name) && branchPath.containsKey(name) &&
-                    !headPath.containsKey(name)) {
+            if (!splitPath.containsKey(name) && branchPath.containsKey(name)
+                    && !headPath.containsKey(name)) {
                 filetree.remove(headPath.get(name));
                 filetree.add(branchPath.get(name));
                 writeContents(name, blobs.get(branchPath.get(name)).getContent());
@@ -518,51 +486,14 @@ public class Repository {
                     trackedfile.add(result);
                 }
             }
-            if (splitPath.containsKey(name) && !branchPath.containsKey(name) &&
-                    headPath.containsKey(name)) {
+            if (splitPath.containsKey(name) && !branchPath.containsKey(name)
+                    && headPath.containsKey(name)) {
                 if (splitPath.get(name).equals(headPath.get(name))) {
                     filetree.remove(headPath.get(name));
                     name.delete();
                 }
             }
-            if (splitPath.containsKey(name) && branchPath.containsKey(name) &&
-                    !headPath.containsKey(name)) {
-                if (!splitPath.get(name).equals(branchPath.get(name))) {
-                    Blob blobOfBranch = blobs.get(branchPath.get(name));
-                    System.out.println("Encountered a merge conflict.");
-                    String contents = "<<<<<<< HEAD" + "\n"
-                            + ""
-                            + "=======" + "\n"
-                            + blobOfBranch.getContent()
-                            + ">>>>>>>" + "\n";
-                    writeContents(name, contents);
-                    Blob newBlob = new Blob(name, name);
-                    filetree.add(newBlob.getId());
-                    blobs.put(newBlob.getId(), newBlob);
-                    String originalString = name.toString();
-                    String prefixToRemove = CWD.toString() + "\\";
-                    String result = originalString.substring(prefixToRemove.length());
-                    if (!trackedfile.contains(result)) {
-                        trackedfile.add(result);
-                    }
-                }
-            }
-            if (splitPath.containsKey(name) && !branchPath.containsKey(name)
-                    && headPath.containsKey(name)) {
-                if (!splitPath.get(name).equals(headPath.get(name))) {
-                    Blob blobOfHead = blobs.get(headPath.get(name));
-                    System.out.println("Encountered a merge conflict.");
-                    String contents = "<<<<<<< HEAD" + "\n"
-                            + blobOfHead.getContent()
-                            + "=======" + "\n"
-                            + ""
-                            +">>>>>>>" + "\n";;
-                    writeContents(name, contents);
-                    Blob newBlob = new Blob(name, name);
-                    filetree.add(newBlob.getId());
-                    blobs.put(newBlob.getId(), newBlob);
-                }
-            }
+            mergehelper(name, branchPath, headPath, splitPath, headCommit);
         }
         writeObject(file3, trackedfile);
         writeObject(HASH_MAP, blobs);
@@ -578,6 +509,52 @@ public class Repository {
     }
 
 
+    private static void mergehelper(File name, HashMap<File, String> branchPath
+    , HashMap<File, String> headPath, HashMap<File, String> splitPath, Commit headCommit) {
+        HashMap<String, Blob> blobs = getBlobs();
+        String currentBranch = readContentsAsString(BRANCH);
+        File file3 = join(TRACKEDFILE, currentBranch);
+        ArrayList<String> trackedfile = readObject(file3, ArrayList.class);
+        ArrayList<String> filetree = headCommit.getfiletree();
+        if (splitPath.containsKey(name) && branchPath.containsKey(name)
+                && !headPath.containsKey(name)) {
+            if (!splitPath.get(name).equals(branchPath.get(name))) {
+                Blob blobOfBranch = blobs.get(branchPath.get(name));
+                System.out.println("Encountered a merge conflict.");
+                String contents = "<<<<<<< HEAD" + "\n"
+                        + ""
+                        + "=======" + "\n"
+                        + blobOfBranch.getContent()
+                        + ">>>>>>>" + "\n";
+                writeContents(name, contents);
+                Blob newBlob = new Blob(name, name);
+                filetree.add(newBlob.getId());
+                blobs.put(newBlob.getId(), newBlob);
+                String originalString = name.toString();
+                String prefixToRemove = CWD.toString() + "\\";
+                String result = originalString.substring(prefixToRemove.length());
+                if (!trackedfile.contains(result)) {
+                    trackedfile.add(result);
+                }
+            }
+        }
+        if (splitPath.containsKey(name) && !branchPath.containsKey(name)
+                && headPath.containsKey(name)) {
+            if (!splitPath.get(name).equals(headPath.get(name))) {
+                Blob blobOfHead = blobs.get(headPath.get(name));
+                System.out.println("Encountered a merge conflict.");
+                String contents = "<<<<<<< HEAD" + "\n"
+                        + blobOfHead.getContent()
+                        + "=======" + "\n"
+                        + ""
+                        + ">>>>>>>" + "\n";
+                writeContents(name, contents);
+                Blob newBlob = new Blob(name, name);
+                filetree.add(newBlob.getId());
+                blobs.put(newBlob.getId(), newBlob);
+            }
+        }
+    }
 
     //return the map of file dir and blob id  of the current commit
     public static HashMap<File, String> getPath() {
@@ -646,7 +623,7 @@ public class Repository {
     }
 
     private static void checkDelete() {
-        HashMap<File,String> trackedPath = getPath();
+        HashMap<File, String> trackedPath = getPath();
         for (File file : trackedPath.keySet()) {
             if (!file.exists()) {
                 ArrayList<String> list = readObject(REMOVE_LIST, ArrayList.class);
@@ -696,6 +673,51 @@ public class Repository {
         if (!GITLET_DIR.exists()) {
             System.out.println("Not in an initialized Gitlet directory.");
             System.exit(0);
+        }
+    }
+
+    private static void check(String branch) {
+        File file = join(BRANCHES_DIR, branch);
+        if (!file.exists()) {
+            System.out.println("A branch with that name does not exist.");
+            System.exit(0);
+        }
+        Commit branchCommit = readObject(file, Commit.class);
+        Commit headCommit = getLastCommit();
+        Commit splitCommit = getSplit(branchCommit, headCommit);
+        String currentBranch = readContentsAsString(BRANCH);
+        if (currentBranch.equals(branch)) {
+            System.out.println("Cannot merge a branch with itself.");
+            System.exit(0);
+        }
+        if (splitCommit.getId().equals(branchCommit.getId())) {
+            System.out.println("Given branch is an ancestor of the current branch.");
+            System.exit(0);
+        }
+        if (splitCommit.getId().equals(headCommit.getId())) {
+            checkoutThree(branch);
+            System.out.println("Current branch fast-forwarded.");
+            System.exit(0);
+        }
+        ArrayList<String> addList = getAddList();
+        ArrayList<String> removeList = getRemoveList();
+        if (!addList.isEmpty() || !removeList.isEmpty()) {
+            System.out.println("You have uncommitted changes.");
+            System.exit(0);
+        }
+        HashMap<File, String> branchPath = getPath(branchCommit.getId());
+        HashMap<File, String> headPath = getPath(headCommit.getId());
+        HashMap<File, String> splitPath = getPath(splitCommit.getId());
+        File file3 = join(TRACKEDFILE, currentBranch);
+        List<String> files = plainFilenamesIn(CWD);
+        for (String name : files) {
+            File cwdfile = join(CWD, name);
+            if (!headPath.containsKey(cwdfile) && (branchPath.containsKey(cwdfile)
+                    || splitPath.containsKey(cwdfile))) {
+                System.out.println("There is an untracked file in the way; delete it, "
+                        + "or add and commit it first.");
+                System.exit(0);
+            }
         }
     }
 }
