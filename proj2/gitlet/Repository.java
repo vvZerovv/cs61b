@@ -121,10 +121,12 @@ public class Repository {
         String currentBranch = readContentsAsString(BRANCH);
         File file2 = join(TRACKEDFILE, currentBranch);
         ArrayList<String> trackedfile = readObject(file2, ArrayList.class);
+        HashMap<String, Blob> blobs = getBlobs();
         for (String file : newShot) {
             File stagedfile = join(STAGING_DIR, file);
             File currentfile = join(CWD, file);
             Blob blob = new Blob(currentfile, stagedfile);
+            blobs.put(blob.getId(), blob);
             if (trackedPath.containsKey(currentfile)) {
                 String blobId = trackedPath.get(currentfile);
                 parentsShot.remove(blobId);
@@ -147,6 +149,7 @@ public class Repository {
                 parentsShot.remove(blobId);
             }
         }
+        writeObject(HASH_MAP,blobs);
         writeObject(ADD_LIST, new ArrayList<>());
         writeObject(REMOVE_LIST, new ArrayList<>());
         String branch = readContentsAsString(BRANCH);
@@ -419,6 +422,8 @@ public class Repository {
         cleanStaging();
     }
 
+
+
     public static void mergeCommand(String branch) {
         File file = join(BRANCHES_DIR, branch);
         if (!file.exists()) {
@@ -479,6 +484,7 @@ public class Repository {
                     writeContents(name, content);
                     Blob newBlob = new Blob(name, name);
                     filetree.add(newBlob.getId());
+                    blobs.put(newBlob.getId(), newBlob);
                 }
             }
             if (!splitPath.containsKey(name) && branchPath.containsKey(name) && !headPath.containsKey(name)) {
@@ -496,23 +502,26 @@ public class Repository {
                 if (!splitPath.get(name).equals(branchPath.get(name))) {
                     Blob blobOfBranch = blobs.get(branchPath.get(name));
                     System.out.println("Encountered a merge conflict.");
-                    String content = "<<<<<<< HEAD\n"+"\n=======\n"+blobOfBranch.getContent()+"\n>>>>>>>";
+                    String content = "<<<<<<< HEAD\n"+"=======\n"+blobOfBranch.getContent()+"\n>>>>>>>";
                     writeContents(name, content);
                     Blob newBlob = new Blob(name, name);
                     filetree.add(newBlob.getId());
+                    blobs.put(newBlob.getId(), newBlob);
                 }
             }
             if (splitPath.containsKey(name) && !branchPath.containsKey(name) && headPath.containsKey(name)) {
                 if (!splitPath.get(name).equals(headPath.get(name))) {
                     Blob blobOfHead = blobs.get(headPath.get(name));
                     System.out.println("Encountered a merge conflict.");
-                    String content = "<<<<<<< HEAD\n"+blobOfHead.getContent()+"\n=======\n"+"\n>>>>>>>";
+                    String content = "<<<<<<< HEAD\n"+blobOfHead.getContent()+"\n======="+"\n>>>>>>>";
                     writeContents(name, content);
                     Blob newBlob = new Blob(name, name);
                     filetree.add(newBlob.getId());
+                    blobs.put(newBlob.getId(), newBlob);
                 }
             }
         }
+        writeObject(HASH_MAP,blobs);
         String mess = "Merged "+ branch + " into " + currentBranch + ".";
         ArrayList<String> list1 = headCommit.getparent();
         ArrayList<String> list2 = branchCommit.getparent();
