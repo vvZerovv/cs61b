@@ -140,7 +140,7 @@ public class Repository {
                 trackedfile.add(file);
             }
         }
-        writeObject(TRACKEDFILE, trackedfile);
+        writeObject(file2, trackedfile);
         for (String file : deleteFile) {
             File currentfile = join(CWD, file);
             if (trackedPath.containsKey(currentfile)) {
