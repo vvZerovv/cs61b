@@ -376,8 +376,12 @@ public class Repository {
         }
         Commit commit = readObject(fileC, Commit.class);
         String branch = commit.getBranch();
+        String currentBranchreally = readContentsAsString(BRANCH);
         Commit currentCommit = getLastCommit();
         String currentBranch = currentCommit.getBranch();
+        if (!currentBranchreally.equals(currentBranch)) {
+            currentBranch = currentBranchreally;
+        }
         List<String> files = plainFilenamesIn(CWD);
         File file2 = join(TRACKEDFILE, currentBranch);
         ArrayList<String> trackedPath = readObject(file2, ArrayList.class);
