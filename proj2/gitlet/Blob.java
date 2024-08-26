@@ -1,9 +1,6 @@
 
 package gitlet;
 import java.io.*;
-import java.util.*;
-import static gitlet.Repository.GITLET_DIR;
-import static gitlet.Utils.join;
 import static gitlet.Utils.*;
 
 public class Blob implements Serializable {

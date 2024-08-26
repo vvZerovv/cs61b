@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+
 
 import static gitlet.Repository.*;
 import static gitlet.Utils.join;
@@ -35,7 +35,8 @@ public class Commit implements Serializable {
     /** the branch of the commit */
     private String branch;
 
-    public Commit(String message,  ArrayList<String> parent, ArrayList<String> filetree, String branch) {
+    public Commit(String message,  ArrayList<String> parent, ArrayList<String> filetree,
+                  String branch) {
         this.message = message;
         this.parent = parent;
         this.filetree = filetree;
@@ -47,15 +48,12 @@ public class Commit implements Serializable {
             timestamp = new Date(date.getTime());
         }
         this.id = sha1(serialize(this));
-        //update head pointer
-        Commit HEAD = this;
-        writeObject(POINTER_HEAD,HEAD);
     }
 
     //store the commit in the COMMITS_DIR
     public void store() {
         File file = join(COMMITS_DIR, this.id);
-        writeObject(file,this);
+        writeObject(file, this);
     }
 
 
@@ -83,8 +81,6 @@ public class Commit implements Serializable {
     public String getBranch() {
         return branch;
     }
-
-    public void changeBranch(String branch) {
-        this.branch = branch;
-    }
 }
+
+
