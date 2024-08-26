@@ -464,47 +464,50 @@ public class Repository {
         allFiles.addAll(branchPath.keySet());
         ArrayList<String> filetree = headCommit.getfiletree();
         HashMap<String, Blob> blobs = getBlobs();
-        for (File fil : allFiles) {
-            if (splitPath.containsKey(fil) && branchPath.containsKey(fil) && headPath.containsKey(fil)) {
-                if (!splitPath.get(fil).equals(branchPath.get(fil)) && splitPath.get(fil).equals(headPath.get(fil))) {
-                    filetree.remove(headPath.get(fil));
-                    filetree.add(branchPath.get(fil));
-                    writeContents(fil, blobs.get(branchPath.get(fil)).getContent());
+        for (File name : allFiles) {
+            if (splitPath.containsKey(name) && branchPath.containsKey(name) && headPath.containsKey(name)) {
+                if (!splitPath.get(name).equals(branchPath.get(name)) && splitPath.get(name).equals(headPath.get(name))) {
+                    filetree.remove(headPath.get(name));
+                    filetree.add(branchPath.get(name));
+                    writeContents(name, blobs.get(branchPath.get(name)).getContent());
                 }
-                if (!splitPath.get(fil).equals(branchPath.get(fil)) && !branchPath.get(fil).equals(headPath.get(fil)) && !splitPath.get(fil).equals(headPath.get(fil))) {
-                    Blob blobOfHead = blobs.get(headPath.get(fil));
-                    Blob blobOfBranch = blobs.get(branchPath.get(fil));
+                if (!splitPath.get(name).equals(branchPath.get(name)) && !branchPath.get(name).equals(headPath.get(name)) && !splitPath.get(name).equals(headPath.get(name))) {
+                    System.out.println("Encountered a merge conflict.");
+                    Blob blobOfHead = blobs.get(headPath.get(name));
+                    Blob blobOfBranch = blobs.get(branchPath.get(name));
                     String content = "<<<<<<< HEAD\n"+blobOfHead.getContent()+"\n=======\n"+blobOfBranch.getContent()+"\n>>>>>>>";
-                    writeContents(fil, content);
-                    Blob newBlob = new Blob(fil, fil);
+                    writeContents(name, content);
+                    Blob newBlob = new Blob(name, name);
                     filetree.add(newBlob.getId());
                 }
             }
-            if (!splitPath.containsKey(fil) && branchPath.containsKey(fil) && !headPath.containsKey(fil)) {
-                filetree.remove(headPath.get(fil));
-                filetree.add(branchPath.get(fil));
-                writeContents(fil, blobs.get(branchPath.get(fil)).getContent());
+            if (!splitPath.containsKey(name) && branchPath.containsKey(name) && !headPath.containsKey(name)) {
+                filetree.remove(headPath.get(name));
+                filetree.add(branchPath.get(name));
+                writeContents(name, blobs.get(branchPath.get(name)).getContent());
             }
-            if (splitPath.containsKey(fil) && !branchPath.containsKey(fil) && headPath.containsKey(fil)) {
-                if (splitPath.get(fil).equals(headPath.get(fil))) {
-                    filetree.remove(headPath.get(fil));
+            if (splitPath.containsKey(name) && !branchPath.containsKey(name) && headPath.containsKey(name)) {
+                if (splitPath.get(name).equals(headPath.get(name))) {
+                    filetree.remove(headPath.get(name));
                 }
             }
-            if (splitPath.containsKey(fil) && branchPath.containsKey(fil) && !headPath.containsKey(fil)) {
-                if (!splitPath.get(fil).equals(branchPath.get(fil))) {
-                    Blob blobOfBranch = blobs.get(branchPath.get(fil));
+            if (splitPath.containsKey(name) && branchPath.containsKey(name) && !headPath.containsKey(name)) {
+                if (!splitPath.get(name).equals(branchPath.get(name))) {
+                    Blob blobOfBranch = blobs.get(branchPath.get(name));
+                    System.out.println("Encountered a merge conflict.");
                     String content = "<<<<<<< HEAD\n"+"\n=======\n"+blobOfBranch.getContent()+"\n>>>>>>>";
-                    writeContents(fil, content);
-                    Blob newBlob = new Blob(fil, fil);
+                    writeContents(name, content);
+                    Blob newBlob = new Blob(name, name);
                     filetree.add(newBlob.getId());
                 }
             }
-            if (splitPath.containsKey(fil) && !branchPath.containsKey(fil) && headPath.containsKey(fil)) {
-                if (!splitPath.get(fil).equals(headPath.get(fil))) {
-                    Blob blobOfHead = blobs.get(headPath.get(fil));
+            if (splitPath.containsKey(name) && !branchPath.containsKey(name) && headPath.containsKey(name)) {
+                if (!splitPath.get(name).equals(headPath.get(name))) {
+                    Blob blobOfHead = blobs.get(headPath.get(name));
+                    System.out.println("Encountered a merge conflict.");
                     String content = "<<<<<<< HEAD\n"+blobOfHead.getContent()+"\n=======\n"+"\n>>>>>>>";
-                    writeContents(fil, content);
-                    Blob newBlob = new Blob(fil, fil);
+                    writeContents(name, content);
+                    Blob newBlob = new Blob(name, name);
                     filetree.add(newBlob.getId());
                 }
             }
